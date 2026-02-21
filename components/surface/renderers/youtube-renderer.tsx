@@ -30,7 +30,7 @@ export function YouTubeRenderer({ space }: RendererProps) {
   return (
     <>
       {playing && embedUrl ? (
-        <div className="relative aspect-video w-full overflow-hidden rounded-t-2xl bg-black">
+        <div className="relative aspect-video max-h-80 w-full overflow-hidden rounded-t-2xl bg-black">
           <iframe
             src={embedUrl}
             title={space.title ?? "Video"}
@@ -46,7 +46,7 @@ export function YouTubeRenderer({ space }: RendererProps) {
           )}
         </div>
       ) : thumbnail && !imgError ? (
-        <div className="group relative aspect-video w-full overflow-hidden rounded-t-2xl">
+        <div className="group relative aspect-video max-h-80 w-full overflow-hidden rounded-t-2xl">
           <Image src={thumbnail} alt={space.title ?? "Video thumbnail"} fill
                  className="object-cover" onError={() => setImgError(true)} unoptimized priority />
           <div className="absolute inset-0 bg-black/20 transition-colors group-hover:bg-black/35" />

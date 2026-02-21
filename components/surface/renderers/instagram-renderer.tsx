@@ -13,7 +13,7 @@ export function InstagramRenderer({ space }: RendererProps) {
     <>
       {space.imageUrl && !imgError ? (
         <a href={space.originalUrl ?? "#"} target="_blank" rel="noopener noreferrer" className="group block">
-          <div className="relative aspect-square w-full overflow-hidden rounded-t-2xl">
+          <div className="relative aspect-square max-h-96 w-full overflow-hidden rounded-t-2xl">
             <Image src={space.imageUrl} alt={space.title ?? "Instagram post"} fill
                    className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                    onError={() => setImgError(true)} unoptimized priority />
