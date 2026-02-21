@@ -17,7 +17,11 @@ const URL_RE = /^(https?:\/\/|[\w-]+\.[\w-]+[./])/i;
 
 type FormState = "idle" | "fetching" | "previewing" | "creating";
 
-export function CreateForm() {
+interface CreateFormProps {
+  onPreviewChange?: (showing: boolean) => void;
+}
+
+export function CreateForm({ onPreviewChange }: CreateFormProps) {
   const router = useRouter();
   const [input, setInput] = useState("");
   const [state, setState] = useState<FormState>("idle");
@@ -87,6 +91,7 @@ export function CreateForm() {
 
     setError(null);
     setState("fetching");
+    onPreviewChange?.(true);
     setMetadata(null);
     setFreeTextTitle(null);
 
@@ -195,6 +200,7 @@ export function CreateForm() {
               setInput(e.target.value);
               if (state !== "idle") {
                 setState("idle");
+                onPreviewChange?.(false);
                 stopPolling();
                 setMetadata(null);
                 setJobId(null);
