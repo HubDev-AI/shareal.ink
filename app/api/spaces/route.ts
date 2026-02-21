@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { url, jobId, title, description, linkType, primaryActionLabel, intentText } = body;
+  const { url, jobId, title, description, linkType, primaryActionLabel, intentText, intentType } = body;
 
   if (!linkType || !primaryActionLabel) {
     return NextResponse.json({ error: "linkType and primaryActionLabel are required" }, { status: 400 });
@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
       imageUrl: ogImageUrl,
       linkType,
       primaryActionLabel,
+      intentType: intentType || "meet",
       intentText: intentText || null,
       extras: ogExtras ?? undefined,
       ogJobId: jobId || null,

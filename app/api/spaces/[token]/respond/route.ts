@@ -29,11 +29,12 @@ export async function POST(
     data: { spaceId: space.id, responseType },
   });
 
-  const count = await prisma.response.count({
-    where: { spaceId: space.id, responseType: "yes" },
-  });
+  const [yesCount, noCount] = await Promise.all([
+    prisma.response.count({ where: { spaceId: space.id, responseType: "yes" } }),
+    prisma.response.count({ where: { spaceId: space.id, responseType: "no" } }),
+  ]);
 
   analytics.track({ name: "space_responded", properties: { token, responseType } });
 
-  return NextResponse.json({ count });
+  return NextResponse.json({ count: yesCount, yesCount, noCount });
 }

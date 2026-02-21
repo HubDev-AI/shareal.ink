@@ -5,9 +5,9 @@ import { motion } from "motion/react";
 import { getRenderer } from "./renderers";
 import { ActionButton } from "./shared/action-button";
 import { ResponseCounter } from "./shared/response-counter";
+import { VoteButtons } from "./shared/vote-buttons";
 import { SecondaryActions } from "./shared/secondary-actions";
 import { formatRelativeTime } from "@/lib/format-time";
-import { linkTypeConfig } from "@/lib/config/link-types";
 import { defaultTheme } from "@/lib/config/themes";
 import type { SpaceData } from "@/lib/types";
 
@@ -18,9 +18,7 @@ interface SurfaceCardProps {
 export function SurfaceCard({ space }: SurfaceCardProps) {
   const [count, setCount] = useState(space.responseCount);
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://shareal.ink"}/${space.token}`;
-  const config = linkTypeConfig[space.linkType];
   const theme = defaultTheme;
-  const showAction = config.showAction;
   const Renderer = getRenderer(space.linkType);
 
   return (
@@ -44,7 +42,7 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
       )}
 
       <div className="space-y-5 p-6 pt-3">
-        {showAction && (
+        {space.intentType === "meet" && (
           <motion.div
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
@@ -59,7 +57,17 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
           </motion.div>
         )}
 
-        {showAction && <ResponseCounter count={count} />}
+        {space.intentType === "meet" && <ResponseCounter count={count} />}
+
+        {space.intentType === "vote" && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.3 }}
+          >
+            <VoteButtons token={space.token} />
+          </motion.div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 6 }}

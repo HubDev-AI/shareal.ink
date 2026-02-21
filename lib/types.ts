@@ -20,6 +20,7 @@ export interface SpaceCreateInput {
   title: string | null;
   description: string | null;
   linkType: LinkType;
+  intentType: IntentType;
   primaryActionLabel: string;
   intentText: string | null;
   ogJobId: string | null;
