@@ -6,9 +6,12 @@ import { HeroImage } from "./hero-image";
 import { ActionButton } from "./action-button";
 import { ResponseCounter } from "./response-counter";
 import { SecondaryActions } from "./secondary-actions";
+import { CoordsBadge } from "./coords-badge";
 import { linkTypeConfig } from "@/lib/config/link-types";
 import { defaultTheme } from "@/lib/config/themes";
 import type { SpaceData } from "@/lib/types";
+
+const COORDS_RE = /(-?\d+\.?\d*),\s*(-?\d+\.?\d*)/;
 
 interface SurfaceCardProps {
   space: SpaceData;
@@ -21,6 +24,13 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
   const theme = defaultTheme;
   const showAction = config.showAction;
   const isTextOnly = !space.originalUrl && !space.imageUrl;
+
+  // Extract coordinates from description (injected by Google Maps extractor)
+  const coordsMatch = space.description?.match(COORDS_RE);
+  const coords = coordsMatch ? `${coordsMatch[1]}, ${coordsMatch[2]}` : null;
+  const descriptionText = coords
+    ? space.description!.replace(COORDS_RE, "").replace(/\n+$/, "").trim() || null
+    : space.description;
 
   return (
     <motion.div
@@ -38,7 +48,7 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
         />
       )}
 
-      <div className={`space-y-5 ${isTextOnly ? "px-6 py-6 sm:px-8 sm:py-7" : "p-6 pt-5"}`}>
+      <div className={`space-y-5 ${isTextOnly ? "px-8 py-8 sm:px-12 sm:py-10 text-center" : "p-6 pt-5"}`}>
         {/* Title + description */}
         <div>
           {space.title && (
@@ -48,7 +58,7 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
               transition={{ delay: 0.15, duration: 0.3 }}
               className={
                 isTextOnly
-                  ? `${theme.textTitle} bg-gradient-to-br from-white via-cyan-100 to-cyan-300 bg-clip-text text-transparent`
+                  ? `${space.title.length <= 40 ? "text-3xl sm:text-5xl font-semibold leading-tight tracking-tight" : theme.textTitle} bg-gradient-to-br from-white via-cyan-100 to-cyan-300 bg-clip-text text-transparent`
                   : "text-[22px] font-semibold leading-tight tracking-tight text-white"
               }
             >
@@ -67,15 +77,26 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
             </motion.h1>
           )}
 
-          {space.description && (
+          {descriptionText && (
             <motion.p
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.3 }}
               className="mt-2 whitespace-pre-line text-[15px] leading-relaxed text-white/45 line-clamp-4"
             >
-              {space.description}
+              {descriptionText}
             </motion.p>
+          )}
+
+          {coords && (
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25, duration: 0.3 }}
+              className="mt-3"
+            >
+              <CoordsBadge coords={coords} />
+            </motion.div>
           )}
         </div>
 
