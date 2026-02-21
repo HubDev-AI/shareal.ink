@@ -5,7 +5,7 @@ import { rateLimiter, auth, analytics } from "@/lib/container";
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
-  const limit = await rateLimiter.check(ip);
+  const limit = await rateLimiter.check(`spaces:${ip}`);
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Too many requests" },

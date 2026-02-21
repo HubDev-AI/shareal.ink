@@ -1,5 +1,6 @@
 import { RegexLinkDetector } from "@/lib/adapters/regex-link-detector";
 import { InMemoryRateLimiter } from "@/lib/adapters/in-memory-rate-limiter";
+import { UpstashRateLimiter } from "@/lib/adapters/upstash-rate-limiter";
 import { NoopAuthProvider } from "@/lib/adapters/noop-auth";
 import { NoopAnalytics } from "@/lib/adapters/noop-analytics";
 import { PassthroughImageStore } from "@/lib/adapters/passthrough-image-store";
@@ -11,6 +12,8 @@ export const ogFetcher: IOgFetcher = new MetascraperOgFetcher();
 export const queue: IQueue = new BullMQAdapter();
 export const auth: IAuthProvider = new NoopAuthProvider();
 export const analytics: IAnalytics = new NoopAnalytics();
-export const rateLimiter: IRateLimiter = new InMemoryRateLimiter();
+export const rateLimiter: IRateLimiter = process.env.UPSTASH_REDIS_REST_URL
+  ? new UpstashRateLimiter()
+  : new InMemoryRateLimiter();
 export const linkDetector: ILinkDetector = new RegexLinkDetector();
 export const imageStore: IImageStore = new PassthroughImageStore();
