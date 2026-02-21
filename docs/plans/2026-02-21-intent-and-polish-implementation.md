@@ -2,9 +2,9 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
-**Goal:** Add creator intent text to surfaces ("Friday 7PM?") and polish the UI (input, buttons, spacing, timestamp, gradient).
+**Goal:** Add creator intent text, intent type system (meet/vote/share), adaptive backgrounds, and UI polish.
 
-**Architecture:** Two branches shipped sequentially. Branch 1 (`feat/intent-layer`) adds the `intentText` field end-to-end: DB → API → create form → surface display. Branch 2 (`feat/ui-polish`) is pure CSS/styling: input glass feel, button hierarchy, card spacing, relative timestamp, gradient softening. Branch 2 is independently revertable.
+**Architecture:** Three branches shipped sequentially. Branch 1 (`feat/intent-layer`) adds `intentText` end-to-end. Branch 2 (`feat/ui-polish`) is pure CSS/styling (independently revertable). Branch 3 (`feat/intent-system`) adds intentType selector with auto-inference, vote action UI, and adaptive backgrounds per link type.
 
 **Tech Stack:** Next.js 16 App Router, Prisma 7, TypeScript, Tailwind CSS 4, Motion
 
@@ -651,3 +651,668 @@ EOF
 **Step 4: Merge (or hold for review)**
 
 User decides whether to merge or revert.
+
+---
+
+# BRANCH 3: feat/intent-system
+
+Create branch from dev (with intent layer + ui polish merged):
+
+```bash
+git checkout dev && git pull origin dev
+git checkout -b feat/intent-system
+```
+
+---
+
+### Task 16: DB Migration — Add `intentText` Column (if not in Branch 1) + Defaults Config
+
+**Files:**
+- Modify: `lib/config/link-types.ts`
+
+**Step 1: Add `defaultIntentType` to `LinkTypeConfig`**
+
+In `lib/config/link-types.ts`, add to the interface:
+
+```ts
+/** Default intentType for this link type */
+defaultIntentType: IntentType;
+```
+
+Import `IntentType`:
+
+```ts
+import type { LinkType, IntentType } from "@/lib/types";
+```
+
+Add values to each link type config:
+
+```ts
+google_maps: { ..., defaultIntentType: "meet" },
+youtube:     { ..., defaultIntentType: "share" },
+instagram:   { ..., defaultIntentType: "share" },
+tiktok:      { ..., defaultIntentType: "share" },
+spotify:     { ..., defaultIntentType: "share" },
+x_twitter:   { ..., defaultIntentType: "share" },
+event:       { ..., defaultIntentType: "meet" },
+generic:     { ..., defaultIntentType: "share" },
+```
+
+**Step 2: Commit**
+
+```bash
+git add lib/config/link-types.ts
+git commit -m "feat: add defaultIntentType to link type config"
+```
+
+---
+
+### Task 17: Intent Inference Utility + Tests
+
+**Files:**
+- Create: `lib/infer-intent.ts`
+- Create: `lib/__tests__/infer-intent.test.ts`
+
+**Step 1: Write failing tests**
+
+```ts
+// lib/__tests__/infer-intent.test.ts
+import { describe, it, expect } from "vitest";
+import { inferIntentType } from "@/lib/infer-intent";
+
+describe("inferIntentType", () => {
+  it("returns 'vote' when text contains a question mark", () => {
+    expect(inferIntentType("Should I buy this?", "generic")).toBe("vote");
+  });
+
+  it("returns 'meet' for time-like patterns", () => {
+    expect(inferIntentType("Friday 7PM", "generic")).toBe("meet");
+    expect(inferIntentType("Tomorrow at noon", "generic")).toBe("meet");
+    expect(inferIntentType("tonight", "generic")).toBe("meet");
+    expect(inferIntentType("Let's go Monday", "generic")).toBe("meet");
+    expect(inferIntentType("Dinner at 8pm", "generic")).toBe("meet");
+  });
+
+  it("returns link type default for empty text", () => {
+    expect(inferIntentType("", "google_maps")).toBe("meet");
+    expect(inferIntentType("", "youtube")).toBe("share");
+  });
+
+  it("returns link type default for non-matching text", () => {
+    expect(inferIntentType("Check this out", "spotify")).toBe("share");
+    expect(inferIntentType("My favorite song", "generic")).toBe("share");
+  });
+
+  it("prioritizes question mark over time patterns", () => {
+    expect(inferIntentType("Friday at 7?", "generic")).toBe("vote");
+  });
+});
+```
+
+**Step 2: Run tests to verify they fail**
+
+Run: `bun run test`
+Expected: FAIL — `inferIntentType` not found
+
+**Step 3: Implement**
+
+```ts
+// lib/infer-intent.ts
+import type { IntentType, LinkType } from "@/lib/types";
+import { linkTypeConfig } from "@/lib/config/link-types";
+
+const TIME_PATTERNS = /\b(monday|tuesday|wednesday|thursday|friday|saturday|sunday|tonight|tomorrow|today|morning|noon|evening|afternoon|am|pm|\d{1,2}:\d{2}|\d{1,2}\s*(am|pm))\b/i;
+
+export function inferIntentType(text: string, linkType: LinkType): IntentType {
+  const trimmed = text.trim();
+
+  if (!trimmed) {
+    return linkTypeConfig[linkType].defaultIntentType;
+  }
+
+  // Question mark → vote (highest priority)
+  if (trimmed.includes("?")) {
+    return "vote";
+  }
+
+  // Time-like patterns → meet
+  if (TIME_PATTERNS.test(trimmed)) {
+    return "meet";
+  }
+
+  // Fall back to link type default
+  return linkTypeConfig[linkType].defaultIntentType;
+}
+```
+
+**Step 4: Run tests to verify they pass**
+
+Run: `bun run test`
+Expected: All PASS
+
+**Step 5: Commit**
+
+```bash
+git add lib/infer-intent.ts lib/__tests__/infer-intent.test.ts
+git commit -m "feat: inferIntentType utility with auto-inference from text"
+```
+
+---
+
+### Task 18: Update Types + API — Accept `intentType`
+
+**Files:**
+- Modify: `lib/types.ts`
+- Modify: `app/api/spaces/route.ts`
+
+**Step 1: Add `intentType` to `SpaceCreateInput`**
+
+In `lib/types.ts`, add to `SpaceCreateInput`:
+
+```ts
+intentType: IntentType;
+```
+
+**Step 2: Accept `intentType` in POST /api/spaces**
+
+In `app/api/spaces/route.ts`, destructure it:
+
+```ts
+const { url, jobId, title, description, linkType, primaryActionLabel, intentText, intentType } = body;
+```
+
+Add it to `prisma.space.create`:
+
+```ts
+intentType: intentType || "meet",
+```
+
+**Step 3: Commit**
+
+```bash
+git add lib/types.ts app/api/spaces/route.ts
+git commit -m "feat: accept intentType in POST /api/spaces"
+```
+
+---
+
+### Task 19: Intent Type Pills UI in Create Form
+
+**Files:**
+- Create: `components/create/intent-type-pills.tsx`
+- Modify: `components/create/create-form.tsx`
+
+**Step 1: Create IntentTypePills component**
+
+```tsx
+// components/create/intent-type-pills.tsx
+"use client";
+
+import type { IntentType } from "@/lib/types";
+
+interface IntentTypePillsProps {
+  value: IntentType;
+  onChange: (type: IntentType) => void;
+  disabled?: boolean;
+}
+
+const pills: { type: IntentType; label: string }[] = [
+  { type: "meet", label: "Meet" },
+  { type: "vote", label: "Vote" },
+  { type: "share", label: "Share" },
+];
+
+export function IntentTypePills({ value, onChange, disabled }: IntentTypePillsProps) {
+  return (
+    <div className="flex items-center justify-center gap-2">
+      {pills.map(({ type, label }) => (
+        <button
+          key={type}
+          type="button"
+          disabled={disabled}
+          onClick={() => onChange(type)}
+          className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all ${
+            value === type
+              ? "bg-white/15 text-white"
+              : "text-white/40 hover:text-white/60"
+          }`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
+```
+
+**Step 2: Wire into create-form.tsx**
+
+Add imports:
+
+```ts
+import { IntentTypePills } from "./intent-type-pills";
+import { inferIntentType } from "@/lib/infer-intent";
+import type { IntentType } from "@/lib/types";
+```
+
+Add state:
+
+```ts
+const [intentType, setIntentType] = useState<IntentType>("share");
+```
+
+Add an `useEffect` to auto-infer intent type when `intentText` or `linkType` changes:
+
+```ts
+useEffect(() => {
+  if (showPreview) {
+    setIntentType(inferIntentType(intentText, linkType));
+  }
+}, [intentText, linkType, showPreview]);
+```
+
+After the intent text input and before the create button, add:
+
+```tsx
+{showPreview && (
+  <IntentTypePills
+    value={intentType}
+    onChange={setIntentType}
+    disabled={state === "creating"}
+  />
+)}
+```
+
+Pass `intentType` in the create API call body:
+
+```ts
+intentType,
+```
+
+Reset `intentType` alongside other state resets when input changes:
+
+```ts
+setIntentType("share");
+```
+
+**Step 3: Commit**
+
+```bash
+git add components/create/intent-type-pills.tsx components/create/create-form.tsx
+git commit -m "feat: intent type pills with auto-inference in create flow"
+```
+
+---
+
+### Task 20: Update Surface Card — Action by intentType
+
+**Files:**
+- Modify: `components/surface/surface-card.tsx`
+
+**Step 1: Change `showAction` logic to use `intentType`**
+
+Currently, `showAction` comes from link type config. Replace with:
+
+```ts
+const showAction = space.intentType !== "share";
+```
+
+Remove the `config.showAction` usage for the action/counter section.
+
+Keep `config` import for anything else still needed (e.g., `imageHeight`).
+
+**Step 2: Commit**
+
+```bash
+git add components/surface/surface-card.tsx
+git commit -m "feat: surface card shows action based on intentType, not linkType"
+```
+
+---
+
+### Task 21: Vote Action Button Variant
+
+**Files:**
+- Create: `components/surface/shared/vote-buttons.tsx`
+- Modify: `components/surface/surface-card.tsx`
+
+**Step 1: Create VoteButtons component**
+
+```tsx
+// components/surface/shared/vote-buttons.tsx
+"use client";
+
+import { useState, useEffect } from "react";
+import { ThumbsUp, ThumbsDown, Check } from "lucide-react";
+
+interface VoteButtonsProps {
+  token: string;
+}
+
+export function VoteButtons({ token }: VoteButtonsProps) {
+  const [vote, setVote] = useState<"yes" | "no" | null>(null);
+  const [yesCount, setYesCount] = useState(0);
+  const [noCount, setNoCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(`shareal:vote:${token}`);
+    if (stored === "yes" || stored === "no") setVote(stored);
+  }, [token]);
+
+  const handleVote = async (responseType: "yes" | "no") => {
+    if (vote || loading) return;
+    setLoading(true);
+
+    try {
+      const res = await fetch(`/api/spaces/${token}/respond`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ responseType }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setVote(responseType);
+        localStorage.setItem(`shareal:vote:${token}`, responseType);
+        if (responseType === "yes") setYesCount(data.yesCount ?? data.count ?? 0);
+        if (responseType === "no") setNoCount(data.noCount ?? 0);
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (vote) {
+    return (
+      <div className="flex w-full items-center justify-center gap-3">
+        <div
+          className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-base font-medium ${
+            vote === "yes"
+              ? "bg-emerald-500/20 text-emerald-300"
+              : "bg-white/5 text-white/30"
+          }`}
+        >
+          {vote === "yes" && <Check className="h-4 w-4" />}
+          <ThumbsUp className="h-4 w-4" />
+          {yesCount > 0 && <span>{yesCount}</span>}
+        </div>
+        <div
+          className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-base font-medium ${
+            vote === "no"
+              ? "bg-red-500/20 text-red-300"
+              : "bg-white/5 text-white/30"
+          }`}
+        >
+          {vote === "no" && <Check className="h-4 w-4" />}
+          <ThumbsDown className="h-4 w-4" />
+          {noCount > 0 && <span>{noCount}</span>}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex w-full gap-3">
+      <button
+        onClick={() => handleVote("yes")}
+        disabled={loading}
+        className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-white py-3 text-base font-semibold text-[#040c1f] transition-all active:scale-[0.97] hover:bg-white/90 disabled:opacity-50"
+      >
+        <ThumbsUp className="h-4 w-4" />
+        Yes
+      </button>
+      <button
+        onClick={() => handleVote("no")}
+        disabled={loading}
+        className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 text-base font-semibold text-white transition-all active:scale-[0.97] hover:bg-white/10 disabled:opacity-50"
+      >
+        <ThumbsDown className="h-4 w-4" />
+        No
+      </button>
+    </div>
+  );
+}
+```
+
+**Step 2: Update respond API to return both counts**
+
+In `app/api/spaces/[token]/respond/route.ts`, after creating the response, count both:
+
+```ts
+const [yesCount, noCount] = await Promise.all([
+  prisma.response.count({ where: { spaceId: space.id, responseType: "yes" } }),
+  prisma.response.count({ where: { spaceId: space.id, responseType: "no" } }),
+]);
+
+return NextResponse.json({ count: yesCount, yesCount, noCount });
+```
+
+Keep `count` for backwards compatibility with the existing RSVP button.
+
+**Step 3: Wire VoteButtons into surface-card.tsx**
+
+Import:
+
+```ts
+import { VoteButtons } from "./shared/vote-buttons";
+```
+
+In the action section, replace the single `ActionButton` with conditional rendering:
+
+```tsx
+{space.intentType === "meet" && (
+  <motion.div
+    initial={{ opacity: 0, y: 6 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.25, duration: 0.3 }}
+  >
+    <ActionButton
+      token={space.token}
+      label={space.primaryActionLabel}
+      initialCount={count}
+      onCountChange={setCount}
+    />
+  </motion.div>
+)}
+
+{space.intentType === "vote" && (
+  <motion.div
+    initial={{ opacity: 0, y: 6 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.25, duration: 0.3 }}
+  >
+    <VoteButtons token={space.token} />
+  </motion.div>
+)}
+```
+
+The ResponseCounter only shows for `meet`:
+
+```tsx
+{space.intentType === "meet" && <ResponseCounter count={count} />}
+```
+
+**Step 4: Commit**
+
+```bash
+git add components/surface/shared/vote-buttons.tsx components/surface/surface-card.tsx app/api/spaces/\[token\]/respond/route.ts
+git commit -m "feat: vote buttons (Yes/No) for vote intentType"
+```
+
+---
+
+### Task 22: Adaptive Background CSS Variables
+
+**Files:**
+- Modify: `app/globals.css`
+- Modify: `lib/config/themes.ts`
+
+**Step 1: Add CSS variables to `.bg-aurora`**
+
+In `app/globals.css`, update the `.bg-aurora` class to use CSS custom properties for its color stops. Add before the existing `.bg-aurora` rules:
+
+```css
+:root {
+  --aurora-hue-shift: 0deg;
+  --aurora-saturation-shift: 0%;
+  --aurora-tint: transparent;
+}
+```
+
+Add a radial tint overlay via `.bg-aurora::before` (or modify existing):
+
+```css
+.bg-aurora::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    var(--aurora-tint) 0%,
+    transparent 70%
+  );
+  opacity: 0.08;
+  pointer-events: none;
+  z-index: 0;
+}
+```
+
+**Step 2: Add link-type tint classes**
+
+```css
+.aurora-google_maps { --aurora-tint: #f59e0b; }  /* warm amber */
+.aurora-youtube     { --aurora-tint: #ef4444; }  /* warm red */
+.aurora-instagram   { --aurora-tint: #d946ef; }  /* pink-purple */
+.aurora-tiktok      { --aurora-tint: #6b7280; }  /* neutral gray */
+.aurora-spotify     { --aurora-tint: #22c55e; }  /* green */
+.aurora-x_twitter   { --aurora-tint: #3b82f6; }  /* blue */
+.aurora-event       { --aurora-tint: #8b5cf6; }  /* purple */
+.aurora-generic     { --aurora-tint: transparent; } /* no shift */
+```
+
+**Step 3: Add `auroraClass` to theme config**
+
+In `lib/config/themes.ts`, no change needed — the class is applied on the surface page directly from `space.linkType`.
+
+**Step 4: Commit**
+
+```bash
+git add app/globals.css
+git commit -m "feat: adaptive background tinting CSS variables per link type"
+```
+
+---
+
+### Task 23: Apply Adaptive Background on Surface Page
+
+**Files:**
+- Modify: `app/[token]/page.tsx`
+
+**Step 1: Add aurora tint class to the page**
+
+In the `SurfacePage` component, add the link-type aurora class to the `<main>` element:
+
+```tsx
+<main className={`bg-aurora aurora-${space.linkType} relative ...`}>
+```
+
+This applies the link-type tint to the aurora gradient. If `space.linkType` is `generic`, the class `aurora-generic` uses `transparent`, producing no tint.
+
+**Step 2: Commit**
+
+```bash
+git add app/\[token\]/page.tsx
+git commit -m "feat: apply adaptive aurora tint per link type on surface page"
+```
+
+---
+
+### Task 24: Update `showAction` in Link Type Config
+
+**Files:**
+- Modify: `lib/config/link-types.ts`
+
+**Step 1: Remove `showAction` dependency on link type**
+
+Since action visibility is now driven by `intentType` (Task 20), we can simplify. Set `showAction: true` on all link types so it doesn't interfere:
+
+```ts
+google_maps: { ..., showAction: true },
+youtube:     { ..., showAction: true },
+instagram:   { ..., showAction: true },
+tiktok:      { ..., showAction: true },
+spotify:     { ..., showAction: true },
+x_twitter:   { ..., showAction: true },
+event:       { ..., showAction: true },
+generic:     { ..., showAction: true },
+```
+
+Or better: remove `showAction` from the config entirely if no other code reads it. Check for usages first — if only `surface-card.tsx` used it and that was replaced in Task 20, remove it from the interface and all entries.
+
+**Step 2: Commit**
+
+```bash
+git add lib/config/link-types.ts
+git commit -m "refactor: remove showAction from link type config (now driven by intentType)"
+```
+
+---
+
+### Task 25: Verify and PR — Intent System
+
+**Step 1: Run tests**
+
+Run: `bun run test`
+Expected: All pass (including new inferIntentType tests + existing formatRelativeTime tests)
+
+**Step 2: Manual test**
+
+Run: `bun run dev`
+
+1. **Auto-inference — vote**: Paste any link → type "Should I buy this?" → pills auto-select "Vote"
+2. **Auto-inference — meet**: Paste Maps link → type "Friday 7PM" → pills auto-select "Meet"
+3. **Manual override**: Auto-inferred "Vote" → tap "Share" pill → intentType changes
+4. **Vote surface**: Create with vote intent → surface shows [Yes] [No] buttons → click Yes → counts update
+5. **Meet surface**: Create with meet intent → surface shows "I'm in" RSVP button (existing behavior)
+6. **Share surface**: Create with share intent → no action button, just content + secondary actions
+7. **Adaptive background**: Open Maps surface → subtle amber tint. Open YouTube → subtle red tint. Open generic → no tint.
+8. **Amazon influencer flow**: Paste Amazon product link → type "Should I buy this?" → auto-infers vote → create → surface shows product image + title + "Should I buy this?" + [Yes] [No]
+
+**Step 3: Push and create PR**
+
+```bash
+git push -u origin feat/intent-system
+gh pr create --base dev --title "feat: intent system — type selector, vote UI, adaptive backgrounds" --body "$(cat <<'EOF'
+## Summary
+- Intent type selector (Meet/Vote/Share pills) in create flow with auto-inference
+- Auto-inference: `?` → vote, time patterns → meet, else → link type default
+- Vote UI: Yes/No buttons with separate tallies
+- Share intent: no action button (pure content surface)
+- Adaptive backgrounds: subtle per-link-type tinting via CSS custom properties
+- Removes `showAction` from link type config (now driven by intentType)
+
+## Test plan
+- [ ] Auto-inference: "Should I buy this?" → vote
+- [ ] Auto-inference: "Friday 7PM" → meet
+- [ ] Manual override: tap different pill
+- [ ] Vote surface: Yes/No buttons, counting works
+- [ ] Meet surface: RSVP button (existing behavior preserved)
+- [ ] Share surface: no action button
+- [ ] Adaptive backgrounds visible per link type
+- [ ] Amazon product + "Should I buy this?" → vote surface
+- [ ] All tests pass (including inferIntentType tests)
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+EOF
+)"
+```
+
+**Step 4: Merge**
+
+```bash
+gh pr merge --squash --delete-branch
+git checkout dev && git pull origin dev
+```

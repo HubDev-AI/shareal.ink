@@ -7,10 +7,11 @@
 
 ## What
 
-Two separate features shipped as two branches:
+Three separate features shipped as three branches:
 
 1. **Intent Layer** (`feat/intent-layer`): Add creator intent text ("Friday 7PM?") to surfaces. This transforms the product from a pretty link wrapper into structured intention.
 2. **UI Polish** (`feat/ui-polish`): Cosmetic refinements — softer input, button hierarchy, card spacing, relative timestamp, gradient softening.
+3. **Intent System** (`feat/intent-system`): intentType selector (meet/vote/share), auto-inference from text, vote action UI, adaptive backgrounds per link type.
 
 ## Why
 
@@ -24,8 +25,10 @@ The UI polish elevates from "nice" to "distinct" — Linear meets Apple meets mi
 |----------|--------|-----------|
 | Intent input placement | After preview, always optional | Low friction — appears naturally in flow, doesn't force input |
 | Intent display | Centered between renderer + action, accent color | Intent is the emotional bridge — must feel central, not metadata |
-| Background gradient | Keep same brand gradient (option A) | Consistency builds identity; adaptive gradients are post-MVP |
-| Branches | Two separate branches | UI polish is revertable if not liked; intent is the core feature |
+| Background gradient | Subtle adaptive tint per link type | 5-10% hue shift, barely noticeable, subconsciously contextual |
+| Branches | Three separate branches | Intent layer → UI polish (revertable) → intent system (vote/meet/share + backgrounds) |
+| Intent type selection | Auto-infer + manual override pills | Best UX — smart defaults, creator always has control |
+| Action per intent | meet=RSVP, vote=Yes/No, share=no button | Intent drives action, not link type |
 | Timestamp | Relative time, bottom-right, whisper opacity | Provenance without competing with content |
 
 ---
@@ -148,9 +151,75 @@ Simple `formatRelativeTime()` utility, no library.
 
 ---
 
+## Branch 3: Intent System
+
+### Intent Type Selector (Create Flow)
+
+After preview and intent text input, show 3 pill buttons:
+
+```
+[Preview Card]
+[ What's the plan? ]              ← intent text input
+  (Meet)  (Vote)  (Share)         ← intent type pills, one pre-selected
+[ Create shareable link ]
+```
+
+**Auto-inference from intent text:**
+- Text contains `?` → `vote`
+- Text matches time-like patterns (days of week, AM/PM, "tonight", "tomorrow") → `meet`
+- Everything else (or empty) → default from link type config
+
+**Link type defaults:**
+- `google_maps`, `event` → `meet`
+- All others → `share`
+
+Creator can always tap a different pill to override the inference.
+
+### Action Button Adapts by intentType
+
+| intentType | Surface action | Behavior |
+|------------|---------------|----------|
+| `meet` | **[ I'm in ]** | RSVP counter (existing) |
+| `vote` | **[ Yes ]  [ No ]** | Two buttons, tallied separately |
+| `share` | *(no action button)* | Content + intent + secondary actions only |
+
+For `vote`: uses existing `ResponseType = "yes" | "no"` in the DB. ActionButton gets a vote variant showing two buttons with separate counts.
+
+For `share`: no interactive action. The surface is pure — content, intent, "Open original" / "Share a link."
+
+### Adaptive Backgrounds
+
+Subtle per-link-type tinting via CSS custom properties on the aurora gradient:
+
+| Link type | Hue | Mood |
+|-----------|-----|------|
+| `google_maps` | warm amber | place, grounded |
+| `youtube` | warm red | energy |
+| `instagram` | pink-purple | creative |
+| `tiktok` | neutral | dark, focused |
+| `spotify` | green | calm, musical |
+| `x_twitter` | blue | informational |
+| `event` | purple | social |
+| `generic` | no shift | neutral stage |
+
+Implementation: theme config provides a CSS class per link type. The surface page applies it to the `<main>` element. The `bg-aurora` gradient uses CSS variables for its color stops, and each link type class overrides those variables with a 5-10% tint.
+
+### The Universal Pattern Validated
+
+The influencer Amazon use case proves the system works without special renderers:
+
+1. Paste `amazon.com/dp/...` → `generic` type
+2. OG scraper gets product image + title + price
+3. GenericRenderer displays it
+4. Creator types "Should I buy this?" → auto-infers `vote`
+5. Surface: product image → title → "Should I buy this?" → [Yes] [No]
+
+Same structure, same stage, different content + intent.
+
+---
+
 ## Not In Scope
 
-- `intentType` UI (meet/vote/share selector) — future
-- Adaptive backgrounds per link type — post-MVP
-- Event time parsing from intent text — future
-- Surface expiration — future
+- Surface expiration logic (column `expiresAt` already exists in DB)
+- Admin dashboard
+- Authentication
