@@ -18,6 +18,8 @@ const nextConfig: NextConfig = {
     "@metascraper/helpers",
     "re2",
     "url-regex-safe",
+    "@prisma/adapter-pg",
+    "pg",
   ],
 };
 

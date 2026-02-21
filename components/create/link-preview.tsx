@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TypeBadge } from "@/components/ui/type-badge";
 import type { LinkType, OgMetadata } from "@/lib/types";
@@ -12,9 +13,10 @@ interface LinkPreviewProps {
   metadata: OgMetadata | null;
   loading: boolean;
   title: string | null;
+  className?: string;
 }
 
-export function LinkPreview({ linkType, metadata, loading, title }: LinkPreviewProps) {
+export function LinkPreview({ linkType, metadata, loading, title, className }: LinkPreviewProps) {
   const [imageError, setImageError] = useState(false);
   const displayTitle = metadata?.title ?? title;
   const displayDescription = metadata?.description;
@@ -25,7 +27,7 @@ export function LinkPreview({ linkType, metadata, loading, title }: LinkPreviewP
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="w-full overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface shadow-sm"
+      className={cn("w-full overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface shadow-sm", className)}
     >
       {/* Image */}
       {loading && !imageUrl ? (

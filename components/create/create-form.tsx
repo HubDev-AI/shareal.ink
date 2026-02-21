@@ -1,11 +1,15 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "motion/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LinkPreview } from "./link-preview";
 import type { LinkType, OgMetadata } from "@/lib/types";
+
+// Matches http(s)://... or bare domains like maps.app.goo.gl/...
+const URL_RE = /^(https?:\/\/|[\w-]+\.[\w-]+[./])/i;
 
 type FormState = "idle" | "fetching" | "previewing" | "creating";
 
@@ -57,8 +61,8 @@ export function CreateForm() {
   );
 
   const handleSubmitInput = async () => {
-    const trimmed = input.trim();
-    if (!trimmed) {
+    const value = input.trim();
+    if (!value) {
       setError("Paste a link or type a title");
       return;
     }
@@ -72,7 +76,7 @@ export function CreateForm() {
       const res = await fetch("/api/og", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: trimmed }),
+        body: JSON.stringify({ input: value }),
       });
 
       if (res.status === 429) {
@@ -152,35 +156,56 @@ export function CreateForm() {
     }
   };
 
+  const trimmed = input.trim();
+  const isUrl = useMemo(() => URL_RE.test(trimmed), [trimmed]);
+
   const showPreview = state !== "idle";
   const showCreateButton = state === "fetching" || state === "previewing" || state === "creating";
 
   return (
     <div className="mx-auto w-full max-w-lg space-y-4">
-      <div className="flex gap-2">
-        <Input
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-            if (state !== "idle") {
-              setState("idle");
-              stopPolling();
-              setMetadata(null);
-              setJobId(null);
-              setFreeTextTitle(null);
-            }
-          }}
-          onKeyDown={handleKeyDown}
-          placeholder="Paste a link or type anything..."
-          error={error ?? undefined}
-          disabled={state === "creating"}
-          autoFocus
-        />
-        {state === "idle" && input.trim() && (
-          <Button onClick={handleSubmitInput} variant="secondary" className="shrink-0">
-            Preview
-          </Button>
-        )}
+      <div>
+        <div className="flex gap-2">
+          <Input
+            value={input}
+            onChange={(e) => {
+              setInput(e.target.value);
+              if (state !== "idle") {
+                setState("idle");
+                stopPolling();
+                setMetadata(null);
+                setJobId(null);
+                setFreeTextTitle(null);
+              }
+            }}
+            onKeyDown={handleKeyDown}
+            placeholder="Paste a link or type anything..."
+            error={error ?? undefined}
+            disabled={state === "creating"}
+            autoFocus
+            className="input-glass"
+          />
+          {state === "idle" && trimmed && (
+            <Button onClick={handleSubmitInput} variant="secondary" className="shrink-0 border-white/15 bg-white/10 text-white hover:bg-white/15">
+              Preview
+            </Button>
+          )}
+        </div>
+
+        {/* Ghost echo — full URL whisper below input */}
+        <AnimatePresence>
+          {isUrl && trimmed.length > 30 && (
+            <motion.p
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="mt-1.5 break-all px-5 text-[11px] tracking-wide text-white/25"
+            >
+              {trimmed}
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
 
       {showPreview && (
@@ -189,6 +214,7 @@ export function CreateForm() {
           metadata={metadata}
           loading={state === "fetching"}
           title={freeTextTitle}
+          className="border-white/15 bg-white/8 text-white backdrop-blur-md [&_h3]:text-white [&_p]:text-white/60"
         />
       )}
 
@@ -196,7 +222,7 @@ export function CreateForm() {
         <Button
           onClick={handleCreate}
           loading={state === "creating"}
-          className="w-full text-base"
+          className="w-full text-base bg-white text-[#040c1f] hover:bg-white/90"
         >
           Create shareable link
         </Button>
