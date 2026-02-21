@@ -6,6 +6,7 @@ import { defaultTheme } from "@/lib/config/themes";
 import { NyraSeal } from "@/components/nyra/nyra-seal";
 import { CopyButton } from "@/components/ui/copy-button";
 import { CopyToast } from "@/components/ui/copy-toast";
+import { ComingSoonBadge } from "@/components/ui/coming-soon-badge";
 import type { Metadata } from "next";
 import type { SpaceData, LinkType, IntentType } from "@/lib/types";
 
@@ -83,6 +84,7 @@ export default async function SurfacePage({ params }: PageProps) {
       >
         One link = One beautiful surface.
       </Link>
+      <ComingSoonBadge className="absolute right-2 top-4 z-10" />
 
       <div className="relative z-10 flex flex-1 items-center justify-center">
         <SurfaceCard space={spaceData} />

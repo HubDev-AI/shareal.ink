@@ -221,3 +221,13 @@ body {
     transform: translate(1%, 1%) rotate(0.5deg) scale(1.01);
   }
 }
+
+@keyframes label-breathe {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.55; }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(var(--orbit-r, 50px)) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(var(--orbit-r, 50px)) rotate(-360deg); }
+}
