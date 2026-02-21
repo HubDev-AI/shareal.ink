@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum LinkType {
+  restaurant
+  video
+  event
+  generic
+}
+
+enum IntentType {
+  meet
+  vote
+  share
+}
+
+enum OgJobStatus {
+  processing
+  completed
+  failed
+}
+
+enum ResponseType {
+  yes
+  no
+}
+
+model Space {
+  id                 String      @id @default(cuid())
+  token              String      @unique @db.VarChar(22)
+  originalUrl        String?     @map("original_url")
+  title              String?
+  description        String?
+  imageUrl           String?     @map("image_url")
+  linkType           LinkType    @map("link_type")
+  intentType         IntentType  @default(meet) @map("intent_type")
+  primaryActionLabel String      @map("primary_action_label")
+  ogJobId            String?     @map("og_job_id")
+  creatorUserId      String?     @map("creator_user_id")
+  expiresAt          DateTime?   @map("expires_at")
+  createdAt          DateTime    @default(now()) @map("created_at")
+
+  ogJob     OgJob?     @relation(fields: [ogJobId], references: [id])
+  responses Response[]
+
+  @@map("spaces")
+}
+
+model Response {
+  id           String       @id @default(cuid())
+  spaceId      String       @map("space_id")
+  responseType ResponseType @map("response_type")
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  @@index([spaceId])
+  @@map("responses")
+}
+
+model OgJob {
+  id          String      @id @default(cuid())
+  url         String
+  status      OgJobStatus @default(processing)
+  title       String?
+  description String?
+  imageUrl    String?     @map("image_url")
+  linkType    LinkType    @map("link_type")
+  error       String?
+  createdAt   DateTime    @default(now()) @map("created_at")
+  completedAt DateTime?   @map("completed_at")
+
+  spaces Space[]
+
+  @@map("og_jobs")
+}
