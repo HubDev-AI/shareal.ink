@@ -17,19 +17,18 @@ export const youtubeExtractor: SiteExtractor = {
   },
 
   extract(finalUrl: string, og: OgMetadata) {
-    // YouTube generally serves good OG metadata.
-    // Upgrade the thumbnail to maxresdefault if available.
     const videoId = extractVideoId(finalUrl);
-    if (videoId && !og.imageUrl) {
-      return { imageUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` };
+    const extras: Record<string, string> = {};
+    if (videoId) extras.videoId = videoId;
+
+    if (videoId && (!og.imageUrl || og.imageUrl.includes("hqdefault"))) {
+      return {
+        imageUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+        extras,
+      };
     }
 
-    // If OG image is the low-res default, upgrade it
-    if (videoId && og.imageUrl?.includes("hqdefault")) {
-      return { imageUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` };
-    }
-
-    return {};
+    return { extras };
   },
 };
 

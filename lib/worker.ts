@@ -27,6 +27,7 @@ function ensureWorker(): Worker {
           title: metadata.title,
           description: metadata.description,
           imageUrl: metadata.imageUrl,
+          extras: metadata.extras ?? undefined,
           error: metadata.title ? null : "Failed to extract metadata",
           completedAt: new Date(),
         },
@@ -39,6 +40,7 @@ function ensureWorker(): Worker {
           title: metadata.title,
           description: metadata.description,
           imageUrl: metadata.imageUrl,
+          extras: metadata.extras ?? undefined,
         },
       });
 

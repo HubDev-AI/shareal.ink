@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
   let ogTitle = title;
   let ogDescription = description;
   let ogImageUrl: string | null = null;
+  let ogExtras: unknown = null;
 
   if (jobId) {
     const ogJob = await prisma.ogJob.findUnique({ where: { id: jobId } });
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
       ogTitle = ogTitle ?? ogJob.title;
       ogDescription = ogDescription ?? ogJob.description;
       ogImageUrl = ogJob.imageUrl;
+      ogExtras = ogJob.extras;
     }
   }
 
@@ -49,6 +51,7 @@ export async function POST(request: NextRequest) {
       imageUrl: ogImageUrl,
       linkType,
       primaryActionLabel,
+      extras: ogExtras ?? undefined,
       ogJobId: jobId || null,
       creatorUserId: user.isAuthenticated ? user.userId : null,
     },

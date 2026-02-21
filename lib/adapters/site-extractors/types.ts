@@ -4,6 +4,7 @@ export interface SiteExtractorResult {
   title?: string | null;
   description?: string | null;
   imageUrl?: string | null;
+  extras?: Record<string, string>;
 }
 
 /**
