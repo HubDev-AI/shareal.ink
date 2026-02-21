@@ -102,4 +102,57 @@ describe("RegexLinkDetector", () => {
     const result = detector.detect("https://medium.com/article-title");
     expect(result.linkType).toBe("generic");
   });
+
+  it("detects .pdf URL as pdf", () => {
+    const result = detector.detect("https://example.com/report.pdf");
+    expect(result.linkType).toBe("pdf");
+    expect(result.suggestedActionLabel).toBe("Open PDF");
+  });
+
+  it("detects .pdf URL with query params as pdf", () => {
+    const result = detector.detect("https://example.com/report.pdf?dl=1");
+    expect(result.linkType).toBe("pdf");
+  });
+
+  it("detects Google Docs as google_doc", () => {
+    const result = detector.detect("https://docs.google.com/document/d/abc123/edit");
+    expect(result.linkType).toBe("google_doc");
+    expect(result.suggestedActionLabel).toBe("Open Document");
+  });
+
+  it("detects Google Sheets as google_doc", () => {
+    const result = detector.detect("https://sheets.google.com/spreadsheets/d/abc123");
+    expect(result.linkType).toBe("google_doc");
+  });
+
+  it("detects Google Slides as google_doc", () => {
+    const result = detector.detect("https://slides.google.com/presentation/d/abc123");
+    expect(result.linkType).toBe("google_doc");
+  });
+
+  it("detects Google Drive as google_doc", () => {
+    const result = detector.detect("https://drive.google.com/file/d/abc123/view");
+    expect(result.linkType).toBe("google_doc");
+  });
+
+  it("detects .jpg URL as image", () => {
+    const result = detector.detect("https://example.com/photo.jpg");
+    expect(result.linkType).toBe("image");
+    expect(result.suggestedActionLabel).toBe("View Image");
+  });
+
+  it("detects .png URL as image", () => {
+    const result = detector.detect("https://example.com/screenshot.png");
+    expect(result.linkType).toBe("image");
+  });
+
+  it("detects .webp URL with query as image", () => {
+    const result = detector.detect("https://cdn.example.com/img.webp?w=800");
+    expect(result.linkType).toBe("image");
+  });
+
+  it("detects YouTube thumbnail URL as youtube, not image", () => {
+    const result = detector.detect("https://youtube.com/vi/abc123/maxresdefault.jpg");
+    expect(result.linkType).toBe("youtube");
+  });
 });

@@ -37,6 +37,15 @@ const RULES: PatternRule[] = [
   { pattern: /eventbrite\.com/i, linkType: "event" },
   { pattern: /meetup\.com/i, linkType: "event" },
   { pattern: /lu\.ma/i, linkType: "event" },
+
+  // Documents — PDF
+  { pattern: /\.pdf(\?|$)/i, linkType: "pdf" },
+
+  // Documents — Google Docs/Sheets/Slides/Drive
+  { pattern: /(docs|sheets|slides|drive)\.google\.com/i, linkType: "google_doc" },
+
+  // Images — direct image URLs
+  { pattern: /\.(jpe?g|png|gif|webp|svg)(\?|$)/i, linkType: "image" },
 ];
 
 export class RegexLinkDetector implements ILinkDetector {
