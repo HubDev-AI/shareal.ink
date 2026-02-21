@@ -43,7 +43,7 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
         </motion.p>
       )}
 
-      <div className="space-y-5 p-6 pt-5">
+      <div className="space-y-5 p-6 pt-3">
         {showAction && (
           <motion.div
             initial={{ opacity: 0, y: 6 }}
