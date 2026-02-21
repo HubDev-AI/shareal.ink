@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { SurfaceCard } from "@/components/surface/surface-card";
 import { defaultTheme } from "@/lib/config/themes";
+import { NyraSeal } from "@/components/nyra/nyra-seal";
 import type { Metadata } from "next";
 import type { SpaceData, LinkType, IntentType } from "@/lib/types";
 
@@ -68,6 +69,7 @@ export default async function SurfacePage({ params }: PageProps) {
       {theme.grain && <div className="aurora-grain" />}
       <div className="aurora-calm" />
       <div className="aurora-tint" />
+      <NyraSeal className="absolute bottom-6 right-6 z-10" />
 
       {/* Top-left branding — clickable to home */}
       <Link
