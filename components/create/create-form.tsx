@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { LinkPreview } from "./link-preview";
 import { parseInput } from "@/lib/validation";
 import { linkTypeConfig } from "@/lib/config/link-types";
-import type { LinkType, OgMetadata } from "@/lib/types";
+import { IntentTypePills } from "./intent-type-pills";
+import { inferIntentType } from "@/lib/infer-intent";
+import type { IntentType, LinkType, OgMetadata } from "@/lib/types";
 
 // Matches http(s)://... or bare domains like maps.app.goo.gl/...
 const URL_RE = /^(https?:\/\/|[\w-]+\.[\w-]+[./])/i;
@@ -26,6 +28,7 @@ export function CreateForm() {
   const [metadata, setMetadata] = useState<OgMetadata | null>(null);
   const [freeTextTitle, setFreeTextTitle] = useState<string | null>(null);
   const [intentText, setIntentText] = useState("");
+  const [intentType, setIntentType] = useState<IntentType>("share");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const stopPolling = useCallback(() => {
@@ -38,6 +41,12 @@ export function CreateForm() {
   useEffect(() => {
     return () => stopPolling();
   }, [stopPolling]);
+
+  useEffect(() => {
+    if (state !== "idle") {
+      setIntentType(inferIntentType(intentText, linkType));
+    }
+  }, [intentText, linkType, state]);
 
   const pollOgJob = useCallback(
     (id: string) => {
@@ -136,6 +145,7 @@ export function CreateForm() {
           linkType,
           primaryActionLabel: actionLabel,
           intentText: intentText.trim() || null,
+          intentType,
         }),
       });
 
@@ -190,6 +200,7 @@ export function CreateForm() {
                 setJobId(null);
                 setFreeTextTitle(null);
                 setIntentText("");
+                setIntentType("share");
               }
             }}
             onKeyDown={handleKeyDown}
@@ -243,6 +254,14 @@ export function CreateForm() {
           placeholder={linkTypeConfig[linkType].intentPlaceholder}
           disabled={state === "creating"}
           className="input-glass"
+        />
+      )}
+
+      {showPreview && (
+        <IntentTypePills
+          value={intentType}
+          onChange={setIntentType}
+          disabled={state === "creating"}
         />
       )}
 
