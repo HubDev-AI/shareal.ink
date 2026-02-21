@@ -26,7 +26,7 @@ export function TikTokRenderer({ space }: RendererProps) {
   return (
     <>
       {playing && embedUrl ? (
-        <div className="relative mx-auto w-full max-w-[325px] overflow-hidden rounded-t-2xl bg-black">
+        <div className="relative mx-auto w-full max-w-[325px] overflow-hidden rounded-2xl bg-black m-3 mb-0">
           <iframe
             src={embedUrl}
             title={space.title ?? "TikTok video"}
@@ -42,7 +42,7 @@ export function TikTokRenderer({ space }: RendererProps) {
           )}
         </div>
       ) : thumbnail && !imgError ? (
-        <div className="group relative aspect-[9/16] max-h-96 w-full overflow-hidden rounded-t-2xl">
+        <div className="group relative aspect-[9/16] max-h-96 w-full overflow-hidden rounded-2xl m-3 mb-0">
           <Image src={thumbnail} alt={space.title ?? "TikTok video"} fill
                  className="object-cover" onError={() => setImgError(true)} unoptimized priority />
           <div className="absolute inset-0 bg-black/20 transition-colors group-hover:bg-black/35" />
