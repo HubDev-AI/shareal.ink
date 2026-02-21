@@ -1,5 +1,6 @@
 import type { IOgFetcher } from "@/lib/interfaces";
 import type { OgMetadata } from "@/lib/types";
+import { enhanceMetadata } from "./site-extractors";
 
 // Dynamic imports — server-only, avoid bundling issues
 async function createScraper() {
@@ -8,39 +9,6 @@ async function createScraper() {
   const description = (await import("metascraper-description")).default;
   const image = (await import("metascraper-image")).default;
   return metascraper([title(), description(), image()]);
-}
-
-/**
- * Extract a meaningful title from the final (expanded) URL for sites
- * where OG metadata is generic (e.g. Google Maps returns "Google Maps").
- * This is the same approach used by WhatsApp, Telegram, and Slack.
- */
-function extractTitleFromUrl(finalUrl: string): string | null {
-  try {
-    const u = new URL(finalUrl);
-
-    // Google Maps: /maps/place/Place+Name/@lat,lng or /place/Place+Name/...
-    const placeMatch = u.pathname.match(/\/place\/([^/@]+)/);
-    if (placeMatch) {
-      return decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
-    }
-
-    // Google Maps: /maps/search/Query/@lat,lng
-    const searchMatch = u.pathname.match(/\/maps\/search\/([^/@]+)/);
-    if (searchMatch) {
-      return decodeURIComponent(searchMatch[1].replace(/\+/g, " "));
-    }
-  } catch {
-    // ignore
-  }
-  return null;
-}
-
-/** Check if a title is generic / uninformative (just the site name). */
-function isGenericTitle(title: string | null): boolean {
-  if (!title) return true;
-  const generic = ["google maps", "youtube", "facebook", "instagram", "x"];
-  return generic.includes(title.toLowerCase().trim());
 }
 
 export class MetascraperOgFetcher implements IOgFetcher {
@@ -58,21 +26,16 @@ export class MetascraperOgFetcher implements IOgFetcher {
       const html = await response.text();
       const finalUrl = response.url; // expanded URL after redirects
       const scraper = await createScraper();
-      const metadata = await scraper({ html, url: finalUrl });
+      const raw = await scraper({ html, url: finalUrl });
 
-      let title = metadata.title || null;
-
-      // If the OG title is generic, try to extract a better one from the URL
-      if (isGenericTitle(title)) {
-        const urlTitle = extractTitleFromUrl(finalUrl);
-        if (urlTitle) title = urlTitle;
-      }
-
-      return {
-        title,
-        description: metadata.description || null,
-        imageUrl: metadata.image || null,
+      const og: OgMetadata = {
+        title: raw.title || null,
+        description: raw.description || null,
+        imageUrl: raw.image || null,
       };
+
+      // Apply site-specific enhancements
+      return enhanceMetadata(finalUrl, og);
     } catch {
       try {
         const hostname = new URL(url).hostname.replace("www.", "");

@@ -12,7 +12,7 @@ export function ResponseCounter({ count }: ResponseCounterProps) {
   const label = count === 1 ? "person is in" : "people are in";
 
   return (
-    <div className="text-center text-sm text-muted">
+    <div className="text-center text-sm text-white/35">
       <AnimatePresence mode="wait">
         <motion.span
           key={count}
