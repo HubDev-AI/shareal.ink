@@ -2,6 +2,10 @@ import type { OgMetadata } from "@/lib/types";
 import type { SiteExtractor } from "./types";
 import { googleMapsExtractor } from "./google-maps";
 import { youtubeExtractor } from "./youtube";
+import { instagramExtractor } from "./instagram";
+import { tiktokExtractor } from "./tiktok";
+import { spotifyExtractor } from "./spotify";
+import { xTwitterExtractor } from "./x-twitter";
 
 /**
  * All registered site extractors. Order doesn't matter —
@@ -11,6 +15,10 @@ import { youtubeExtractor } from "./youtube";
 const extractors: SiteExtractor[] = [
   googleMapsExtractor,
   youtubeExtractor,
+  instagramExtractor,
+  tiktokExtractor,
+  spotifyExtractor,
+  xTwitterExtractor,
 ];
 
 /**
@@ -25,6 +33,7 @@ export function enhanceMetadata(finalUrl: string, og: OgMetadata): OgMetadata {
         title: overrides.title !== undefined ? overrides.title : og.title,
         description: overrides.description !== undefined ? overrides.description : og.description,
         imageUrl: overrides.imageUrl !== undefined ? overrides.imageUrl : og.imageUrl,
+        extras: overrides.extras ?? og.extras ?? null,
       };
     }
   }

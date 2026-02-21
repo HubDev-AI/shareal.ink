@@ -4,41 +4,76 @@ import { RegexLinkDetector } from "@/lib/adapters/regex-link-detector";
 const detector = new RegexLinkDetector();
 
 describe("RegexLinkDetector", () => {
-  it("detects Google Maps as restaurant", () => {
+  it("detects Google Maps as google_maps", () => {
     const result = detector.detect("https://maps.google.com/maps?q=Pizza+Place");
-    expect(result.linkType).toBe("restaurant");
+    expect(result.linkType).toBe("google_maps");
     expect(result.suggestedActionLabel).toBe("I'm in!");
   });
 
-  it("detects goo.gl/maps as restaurant", () => {
+  it("detects goo.gl/maps as google_maps", () => {
     const result = detector.detect("https://goo.gl/maps/abc123");
-    expect(result.linkType).toBe("restaurant");
+    expect(result.linkType).toBe("google_maps");
   });
 
-  it("detects Yelp as restaurant", () => {
+  it("detects maps.app.goo.gl as google_maps", () => {
+    const result = detector.detect("https://maps.app.goo.gl/abc123");
+    expect(result.linkType).toBe("google_maps");
+  });
+
+  it("detects Yelp as google_maps", () => {
     const result = detector.detect("https://www.yelp.com/biz/pizza-place");
-    expect(result.linkType).toBe("restaurant");
+    expect(result.linkType).toBe("google_maps");
   });
 
-  it("detects YouTube as video", () => {
+  it("detects YouTube as youtube", () => {
     const result = detector.detect("https://www.youtube.com/watch?v=abc123");
-    expect(result.linkType).toBe("video");
+    expect(result.linkType).toBe("youtube");
     expect(result.suggestedActionLabel).toBe("I'll watch it");
   });
 
-  it("detects youtu.be as video", () => {
+  it("detects youtu.be as youtube", () => {
     const result = detector.detect("https://youtu.be/abc123");
-    expect(result.linkType).toBe("video");
+    expect(result.linkType).toBe("youtube");
   });
 
-  it("detects Vimeo as video", () => {
-    const result = detector.detect("https://vimeo.com/123456");
-    expect(result.linkType).toBe("video");
+  it("detects Instagram post as instagram", () => {
+    const result = detector.detect("https://www.instagram.com/p/abc123/");
+    expect(result.linkType).toBe("instagram");
   });
 
-  it("detects TikTok as video", () => {
+  it("detects Instagram reel as instagram", () => {
+    const result = detector.detect("https://www.instagram.com/reel/abc123/");
+    expect(result.linkType).toBe("instagram");
+  });
+
+  it("detects TikTok as tiktok", () => {
     const result = detector.detect("https://www.tiktok.com/@user/video/123");
-    expect(result.linkType).toBe("video");
+    expect(result.linkType).toBe("tiktok");
+  });
+
+  it("detects Spotify track as spotify", () => {
+    const result = detector.detect("https://open.spotify.com/track/abc123");
+    expect(result.linkType).toBe("spotify");
+  });
+
+  it("detects Spotify playlist as spotify", () => {
+    const result = detector.detect("https://open.spotify.com/playlist/abc123");
+    expect(result.linkType).toBe("spotify");
+  });
+
+  it("detects X/Twitter post as x_twitter", () => {
+    const result = detector.detect("https://x.com/user/status/123");
+    expect(result.linkType).toBe("x_twitter");
+  });
+
+  it("detects twitter.com as x_twitter", () => {
+    const result = detector.detect("https://twitter.com/user/status/123");
+    expect(result.linkType).toBe("x_twitter");
+  });
+
+  it("detects Vimeo as generic", () => {
+    const result = detector.detect("https://vimeo.com/123456");
+    expect(result.linkType).toBe("generic");
   });
 
   it("detects Eventbrite as event", () => {

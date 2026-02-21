@@ -8,17 +8,30 @@ interface PatternRule {
 }
 
 const RULES: PatternRule[] = [
-  // Restaurant / Places
-  { pattern: /maps\.google\.|google\.\w+\/maps|goo\.gl\/maps/i, linkType: "restaurant" },
-  { pattern: /yelp\.com/i, linkType: "restaurant" },
-  { pattern: /opentable\.com/i, linkType: "restaurant" },
-  { pattern: /resy\.com/i, linkType: "restaurant" },
-  { pattern: /tripadvisor\.com/i, linkType: "restaurant" },
+  // Places / Maps
+  { pattern: /maps\.google\.|google\.\w+\/maps|goo\.gl\/maps|maps\.app\.goo\.gl/i, linkType: "google_maps" },
+  { pattern: /yelp\.com/i, linkType: "google_maps" },
+  { pattern: /opentable\.com/i, linkType: "google_maps" },
+  { pattern: /resy\.com/i, linkType: "google_maps" },
+  { pattern: /tripadvisor\.com/i, linkType: "google_maps" },
 
-  // Video
-  { pattern: /youtube\.com|youtu\.be/i, linkType: "video" },
-  { pattern: /vimeo\.com/i, linkType: "video" },
-  { pattern: /tiktok\.com/i, linkType: "video" },
+  // Video — YouTube
+  { pattern: /youtube\.com|youtu\.be/i, linkType: "youtube" },
+
+  // Video — TikTok
+  { pattern: /tiktok\.com/i, linkType: "tiktok" },
+
+  // Video — other (Vimeo → generic for now)
+  { pattern: /vimeo\.com/i, linkType: "generic" },
+
+  // Social — Instagram
+  { pattern: /instagram\.com/i, linkType: "instagram" },
+
+  // Social — X/Twitter
+  { pattern: /^https?:\/\/(www\.)?(x|twitter)\.com/i, linkType: "x_twitter" },
+
+  // Music — Spotify
+  { pattern: /open\.spotify\.com/i, linkType: "spotify" },
 
   // Events
   { pattern: /eventbrite\.com/i, linkType: "event" },

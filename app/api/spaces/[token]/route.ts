@@ -25,6 +25,7 @@ export async function GET(
     linkType: space.linkType,
     intentType: space.intentType,
     primaryActionLabel: space.primaryActionLabel,
+    extras: (space.extras as Record<string, string>) ?? null,
     createdAt: space.createdAt,
     responseCount: space._count.responses,
   });

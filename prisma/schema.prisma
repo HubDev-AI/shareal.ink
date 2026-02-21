@@ -7,8 +7,12 @@ datasource db {
 }
 
 enum LinkType {
-  restaurant
-  video
+  google_maps
+  youtube
+  instagram
+  tiktok
+  spotify
+  x_twitter
   event
   generic
 }
@@ -40,6 +44,7 @@ model Space {
   linkType           LinkType    @map("link_type")
   intentType         IntentType  @default(meet) @map("intent_type")
   primaryActionLabel String      @map("primary_action_label")
+  extras             Json?       @map("extras")
   ogJobId            String?     @map("og_job_id")
   creatorUserId      String?     @map("creator_user_id")
   expiresAt          DateTime?   @map("expires_at")
@@ -71,6 +76,7 @@ model OgJob {
   description String?
   imageUrl    String?     @map("image_url")
   linkType    LinkType    @map("link_type")
+  extras      Json?       @map("extras")
   error       String?
   createdAt   DateTime    @default(now()) @map("created_at")
   completedAt DateTime?   @map("completed_at")

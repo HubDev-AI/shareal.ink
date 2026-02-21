@@ -55,6 +55,7 @@ export default async function SurfacePage({ params }: PageProps) {
     linkType: space.linkType as LinkType,
     intentType: space.intentType as IntentType,
     primaryActionLabel: space.primaryActionLabel,
+    extras: (space.extras as Record<string, string>) ?? null,
     createdAt: space.createdAt,
     responseCount: space._count.responses,
   };

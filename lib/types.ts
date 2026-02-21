@@ -1,4 +1,4 @@
-export type LinkType = "restaurant" | "video" | "event" | "generic";
+export type LinkType = "google_maps" | "youtube" | "instagram" | "tiktok" | "spotify" | "x_twitter" | "event" | "generic";
 export type IntentType = "meet" | "vote" | "share";
 export type OgJobStatus = "processing" | "completed" | "failed";
 export type ResponseType = "yes" | "no";
@@ -7,6 +7,7 @@ export interface OgMetadata {
   title: string | null;
   description: string | null;
   imageUrl: string | null;
+  extras?: Record<string, string> | null;
 }
 
 export interface LinkDetectionResult {
@@ -32,6 +33,7 @@ export interface SpaceData {
   linkType: LinkType;
   intentType: IntentType;
   primaryActionLabel: string;
+  extras: Record<string, string> | null;
   createdAt: Date;
   responseCount: number;
 }
@@ -44,6 +46,7 @@ export interface OgJobData {
   description: string | null;
   imageUrl: string | null;
   linkType: LinkType;
+  extras: Record<string, string> | null;
   error: string | null;
 }
 
