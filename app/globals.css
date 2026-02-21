@@ -97,6 +97,19 @@ body {
     0 0 20px rgba(56, 189, 248, 0.12);
 }
 
+/* Calm zone at center where card sits */
+.aurora-calm {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    rgba(0, 0, 0, 0.15) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
 /* Liquid glass surface panel */
 .glass-surface {
   background: linear-gradient(
