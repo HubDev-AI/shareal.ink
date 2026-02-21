@@ -28,3 +28,83 @@ body {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+
+/* Vibrant blue aurora background */
+.bg-aurora {
+  position: relative;
+  overflow: hidden;
+  background: #040c1f;
+}
+
+.bg-aurora::before,
+.bg-aurora::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  z-index: 0;
+  animation: aurora-drift 14s ease-in-out infinite alternate;
+}
+
+.bg-aurora::before {
+  background:
+    radial-gradient(ellipse 80% 50% at 15% 50%, rgba(30, 58, 180, 0.95) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 70% at 75% 15%, rgba(0, 180, 255, 0.6) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 50% 85%, rgba(20, 40, 140, 0.85) 0%, transparent 65%);
+  filter: blur(50px);
+}
+
+.bg-aurora::after {
+  background:
+    radial-gradient(ellipse 45% 60% at 85% 55%, rgba(56, 189, 248, 0.45) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 35% at 25% 75%, rgba(10, 20, 80, 0.95) 0%, transparent 65%),
+    radial-gradient(ellipse 35% 50% at 55% 25%, rgba(80, 160, 240, 0.35) 0%, transparent 45%),
+    radial-gradient(ellipse 25% 25% at 70% 40%, rgba(0, 220, 255, 0.25) 0%, transparent 50%);
+  filter: blur(70px);
+  animation-delay: -7s;
+  animation-direction: alternate-reverse;
+}
+
+/* Grain overlay for texture */
+.bg-aurora > .aurora-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  pointer-events: none;
+}
+
+/* Frosted glass input for dark backgrounds */
+.input-glass {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.input-glass::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.input-glass:focus {
+  border-color: rgba(100, 200, 255, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate(0%, 0%) rotate(0deg) scale(1);
+  }
+  33% {
+    transform: translate(4%, -2%) rotate(1.5deg) scale(1.03);
+  }
+  66% {
+    transform: translate(-2%, 4%) rotate(-0.5deg) scale(0.98);
+  }
+  100% {
+    transform: translate(1%, 1%) rotate(0.5deg) scale(1.01);
+  }
+}
