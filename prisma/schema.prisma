@@ -14,6 +14,9 @@ enum LinkType {
   spotify
   x_twitter
   event
+  pdf
+  google_doc
+  image
   generic
 }
 

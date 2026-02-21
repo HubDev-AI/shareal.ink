@@ -17,6 +17,9 @@ const registry: Record<LinkType, ComponentType<RendererProps>> = {
   spotify: SpotifyRenderer,
   x_twitter: XTwitterRenderer,
   event: GenericRenderer,
+  pdf: GenericRenderer,
+  google_doc: GenericRenderer,
+  image: GenericRenderer,
   generic: GenericRenderer,
 };
 
