@@ -44,6 +44,7 @@ model Space {
   linkType           LinkType    @map("link_type")
   intentType         IntentType  @default(meet) @map("intent_type")
   primaryActionLabel String      @map("primary_action_label")
+  intentText         String?     @map("intent_text")
   extras             Json?       @map("extras")
   ogJobId            String?     @map("og_job_id")
   creatorUserId      String?     @map("creator_user_id")

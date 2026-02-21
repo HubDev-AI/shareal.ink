@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LinkPreview } from "./link-preview";
 import { parseInput } from "@/lib/validation";
+import { linkTypeConfig } from "@/lib/config/link-types";
 import type { LinkType, OgMetadata } from "@/lib/types";
 
 // Matches http(s)://... or bare domains like maps.app.goo.gl/...
@@ -24,6 +25,7 @@ export function CreateForm() {
   const [actionLabel, setActionLabel] = useState("Interested");
   const [metadata, setMetadata] = useState<OgMetadata | null>(null);
   const [freeTextTitle, setFreeTextTitle] = useState<string | null>(null);
+  const [intentText, setIntentText] = useState("");
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const stopPolling = useCallback(() => {
@@ -133,6 +135,7 @@ export function CreateForm() {
           description: metadata?.description ?? null,
           linkType,
           primaryActionLabel: actionLabel,
+          intentText: intentText.trim() || null,
         }),
       });
 
@@ -186,6 +189,7 @@ export function CreateForm() {
                 setMetadata(null);
                 setJobId(null);
                 setFreeTextTitle(null);
+                setIntentText("");
               }
             }}
             onKeyDown={handleKeyDown}
@@ -229,6 +233,16 @@ export function CreateForm() {
           loading={state === "fetching"}
           title={freeTextTitle}
           className="border-white/15 bg-white/8 text-white backdrop-blur-md [&_h3]:text-white [&_p]:text-white/60"
+        />
+      )}
+
+      {showPreview && (
+        <Input
+          value={intentText}
+          onChange={(e) => setIntentText(e.target.value)}
+          placeholder={linkTypeConfig[linkType].intentPlaceholder}
+          disabled={state === "creating"}
+          className="input-glass"
         />
       )}
 

@@ -21,6 +21,7 @@ export interface SpaceCreateInput {
   description: string | null;
   linkType: LinkType;
   primaryActionLabel: string;
+  intentText: string | null;
   ogJobId: string | null;
 }
 
@@ -33,6 +34,7 @@ export interface SpaceData {
   linkType: LinkType;
   intentType: IntentType;
   primaryActionLabel: string;
+  intentText: string | null;
   extras: Record<string, string> | null;
   createdAt: Date;
   responseCount: number;

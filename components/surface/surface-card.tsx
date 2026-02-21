@@ -31,6 +31,17 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
     >
       <Renderer space={space} theme={theme} />
 
+      {space.intentText && (
+        <motion.p
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.3 }}
+          className="mt-6 mb-2 px-6 text-center text-[17px] font-medium text-cyan-200/80"
+        >
+          {space.intentText}
+        </motion.p>
+      )}
+
       <div className="space-y-5 p-6 pt-5">
         {showAction && (
           <motion.div
