@@ -256,6 +256,7 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
               metadata={metadata}
               loading={state === "fetching"}
               title={freeTextTitle}
+              originalUrl={freeTextTitle ? null : input.trim()}
               className="border-white/15 bg-white/8 text-white backdrop-blur-md [&_h3]:text-white [&_p]:text-white/60"
             />
 

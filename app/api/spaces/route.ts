@@ -5,7 +5,7 @@ import { rateLimiter, auth, analytics } from "@/lib/container";
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
-  const limit = await rateLimiter.check(ip);
+  const limit = await rateLimiter.check(`spaces:${ip}`);
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Too many requests" },
@@ -40,24 +40,38 @@ export async function POST(request: NextRequest) {
   }
 
   const user = await auth.getCurrentUser();
-  const token = createSpaceToken();
 
-  const space = await prisma.space.create({
-    data: {
-      token,
-      originalUrl: url || null,
-      title: ogTitle || null,
-      description: ogDescription || null,
-      imageUrl: ogImageUrl,
-      linkType,
-      primaryActionLabel,
-      intentType: intentType || "meet",
-      intentText: intentText || null,
-      extras: ogExtras ?? undefined,
-      ogJobId: jobId || null,
-      creatorUserId: user.isAuthenticated ? user.userId : null,
-    },
-  });
+  let space;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const token = createSpaceToken();
+    try {
+      space = await prisma.space.create({
+        data: {
+          token,
+          originalUrl: url || null,
+          title: ogTitle || null,
+          description: ogDescription || null,
+          imageUrl: ogImageUrl,
+          linkType,
+          primaryActionLabel,
+          intentType: intentType || "meet",
+          intentText: intentText || null,
+          extras: ogExtras ?? undefined,
+          ogJobId: jobId || null,
+          creatorUserId: user.isAuthenticated ? user.userId : null,
+        },
+      });
+      break;
+    } catch (e: unknown) {
+      if (attempt === 2 || !(e instanceof Error) || !e.message.includes("Unique constraint")) {
+        throw e;
+      }
+    }
+  }
+
+  if (!space) {
+    return NextResponse.json({ error: "Failed to generate unique token" }, { status: 500 });
+  }
 
   analytics.track({ name: "space_created", properties: { linkType, hasOg: !!ogTitle } });
 

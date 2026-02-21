@@ -53,8 +53,8 @@ export function YouTubeRenderer({ space }: RendererProps) {
           <button type="button"
                   onClick={() => embedUrl ? setPlaying(true) : space.originalUrl && window.open(space.originalUrl, "_blank")}
                   className="absolute inset-0 flex cursor-pointer items-center justify-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-lg backdrop-blur-sm transition-transform group-hover:scale-110">
-              <Play className="ml-1 h-6 w-6 fill-[#040c1f] text-[#040c1f]" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-600 shadow-lg backdrop-blur-sm transition-transform group-hover:scale-110">
+              <Play className="ml-1 h-6 w-6 fill-white text-white" />
             </div>
           </button>
           {space.originalUrl && (

@@ -8,6 +8,9 @@ import { InstagramRenderer } from "./instagram-renderer";
 import { TikTokRenderer } from "./tiktok-renderer";
 import { SpotifyRenderer } from "./spotify-renderer";
 import { XTwitterRenderer } from "./x-twitter-renderer";
+import { PdfRenderer } from "./pdf-renderer";
+import { GoogleDocRenderer } from "./google-doc-renderer";
+import { ImageRenderer } from "./image-renderer";
 
 const registry: Record<LinkType, ComponentType<RendererProps>> = {
   google_maps: GoogleMapsRenderer,
@@ -17,6 +20,9 @@ const registry: Record<LinkType, ComponentType<RendererProps>> = {
   spotify: SpotifyRenderer,
   x_twitter: XTwitterRenderer,
   event: GenericRenderer,
+  pdf: PdfRenderer,
+  google_doc: GoogleDocRenderer,
+  image: ImageRenderer,
   generic: GenericRenderer,
 };
 

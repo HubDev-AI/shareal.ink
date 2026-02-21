@@ -5,6 +5,7 @@ import { SurfaceCard } from "@/components/surface/surface-card";
 import { defaultTheme } from "@/lib/config/themes";
 import { NyraSeal } from "@/components/nyra/nyra-seal";
 import { CopyButton } from "@/components/ui/copy-button";
+import { QrButton } from "@/components/ui/qr-button";
 import { CopyToast } from "@/components/ui/copy-toast";
 import { ComingSoonBadge } from "@/components/ui/coming-soon-badge";
 import type { Metadata } from "next";
@@ -92,7 +93,10 @@ export default async function SurfacePage({ params }: PageProps) {
 
       {/* Copy + Bottom branding */}
       <footer className="relative z-10 mt-auto flex flex-col items-center gap-4 pt-8 pb-6">
-        <CopyButton url={surfaceUrl} />
+        <div className="flex items-center gap-3">
+          <CopyButton url={surfaceUrl} />
+          <QrButton url={surfaceUrl} />
+        </div>
         <Link href="/" className="group flex items-center gap-2">
           <div className="h-px w-10 bg-gradient-to-r from-transparent to-cyan-400/30 transition-all group-hover:w-14 group-hover:to-cyan-400/50" />
           <span className="text-sm font-medium tracking-wider text-white/30 transition-colors group-hover:text-white/55">

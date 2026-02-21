@@ -1,4 +1,4 @@
-export type LinkType = "google_maps" | "youtube" | "instagram" | "tiktok" | "spotify" | "x_twitter" | "event" | "generic";
+export type LinkType = "google_maps" | "youtube" | "instagram" | "tiktok" | "spotify" | "x_twitter" | "event" | "pdf" | "google_doc" | "image" | "generic";
 export type IntentType = "meet" | "vote" | "share";
 export type OgJobStatus = "processing" | "completed" | "failed";
 export type ResponseType = "yes" | "no";
