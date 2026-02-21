@@ -6,6 +6,7 @@ import { getRenderer } from "./renderers";
 import { ActionButton } from "./shared/action-button";
 import { ResponseCounter } from "./shared/response-counter";
 import { SecondaryActions } from "./shared/secondary-actions";
+import { formatRelativeTime } from "@/lib/format-time";
 import { linkTypeConfig } from "@/lib/config/link-types";
 import { defaultTheme } from "@/lib/config/themes";
 import type { SpaceData } from "@/lib/types";
@@ -42,7 +43,7 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
         </motion.p>
       )}
 
-      <div className="space-y-5 p-6 pt-5">
+      <div className="space-y-5 p-6 pt-3">
         {showAction && (
           <motion.div
             initial={{ opacity: 0, y: 6 }}
@@ -82,6 +83,15 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
             {space.originalUrl}
           </motion.p>
         )}
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.45, duration: 0.3 }}
+          className="text-right text-[11px] text-white/20"
+        >
+          {formatRelativeTime(new Date(space.createdAt))}
+        </motion.p>
       </div>
     </motion.div>
   );

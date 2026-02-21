@@ -66,6 +66,7 @@ export default async function SurfacePage({ params }: PageProps) {
   return (
     <main className={`${theme.background} relative flex min-h-screen flex-col items-center px-4 py-12`}>
       {theme.grain && <div className="aurora-grain" />}
+      <div className="aurora-calm" />
 
       {/* Top-left branding — clickable to home */}
       <Link

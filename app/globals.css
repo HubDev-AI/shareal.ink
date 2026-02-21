@@ -78,20 +78,36 @@ body {
 
 /* Frosted glass input for dark backgrounds */
 .input-glass {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
   color: white !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .input-glass::placeholder {
-  color: rgba(255, 255, 255, 0.4) !important;
+  color: rgba(255, 255, 255, 0.35) !important;
 }
 
 .input-glass:focus {
-  border-color: rgba(100, 200, 255, 0.4) !important;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+  border-color: rgba(100, 200, 255, 0.25) !important;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.2),
+    0 0 20px rgba(56, 189, 248, 0.12);
+}
+
+/* Calm zone at center where card sits */
+.aurora-calm {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    rgba(0, 0, 0, 0.15) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
 }
 
 /* Liquid glass surface panel */
