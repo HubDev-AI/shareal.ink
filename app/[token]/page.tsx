@@ -4,6 +4,9 @@ import { notFound } from "next/navigation";
 import { SurfaceCard } from "@/components/surface/surface-card";
 import { defaultTheme } from "@/lib/config/themes";
 import { NyraSeal } from "@/components/nyra/nyra-seal";
+import { CopyButton } from "@/components/ui/copy-button";
+import { CopyToast } from "@/components/ui/copy-toast";
+import { ComingSoonBadge } from "@/components/ui/coming-soon-badge";
 import type { Metadata } from "next";
 import type { SpaceData, LinkType, IntentType } from "@/lib/types";
 
@@ -63,6 +66,8 @@ export default async function SurfacePage({ params }: PageProps) {
   };
 
   const theme = defaultTheme;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://shareal.ink";
+  const surfaceUrl = `${appUrl}/${space.token}`;
 
   return (
     <main className={`${theme.background} aurora-${spaceData.linkType} relative flex min-h-screen flex-col items-center px-4 py-12`}>
@@ -70,6 +75,7 @@ export default async function SurfacePage({ params }: PageProps) {
       <div className="aurora-calm" />
       <div className="aurora-tint" />
       <NyraSeal className="absolute bottom-6 right-6 z-10" />
+      <CopyToast />
 
       {/* Top-left branding — clickable to home */}
       <Link
@@ -78,13 +84,15 @@ export default async function SurfacePage({ params }: PageProps) {
       >
         One link = One beautiful surface.
       </Link>
+      <ComingSoonBadge className="absolute right-2 top-4 z-10" />
 
       <div className="relative z-10 flex flex-1 items-center justify-center">
         <SurfaceCard space={spaceData} />
       </div>
 
-      {/* Bottom branding */}
-      <footer className="relative z-10 mt-auto pt-8 pb-6">
+      {/* Copy + Bottom branding */}
+      <footer className="relative z-10 mt-auto flex flex-col items-center gap-4 pt-8 pb-6">
+        <CopyButton url={surfaceUrl} />
         <Link href="/" className="group flex items-center gap-2">
           <div className="h-px w-10 bg-gradient-to-r from-transparent to-cyan-400/30 transition-all group-hover:w-14 group-hover:to-cyan-400/50" />
           <span className="text-sm font-medium tracking-wider text-white/30 transition-colors group-hover:text-white/55">

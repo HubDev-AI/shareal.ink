@@ -167,6 +167,9 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
       }
 
       const data = await res.json();
+      const surfaceUrl = `${window.location.origin}/${data.token}`;
+      try { await navigator.clipboard.writeText(surfaceUrl); } catch {}
+      sessionStorage.setItem("link-copied", "1");
       router.push(`/${data.token}`);
     } catch {
       setError("Network error. Check your connection.");
