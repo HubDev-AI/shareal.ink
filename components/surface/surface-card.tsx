@@ -8,7 +8,6 @@ import { ResponseCounter } from "./shared/response-counter";
 import { VoteButtons } from "./shared/vote-buttons";
 import { SecondaryActions } from "./shared/secondary-actions";
 import { formatRelativeTime } from "@/lib/format-time";
-import { linkTypeConfig } from "@/lib/config/link-types";
 import { defaultTheme } from "@/lib/config/themes";
 import type { SpaceData } from "@/lib/types";
 
@@ -19,7 +18,6 @@ interface SurfaceCardProps {
 export function SurfaceCard({ space }: SurfaceCardProps) {
   const [count, setCount] = useState(space.responseCount);
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://shareal.ink"}/${space.token}`;
-  const config = linkTypeConfig[space.linkType];
   const theme = defaultTheme;
   const Renderer = getRenderer(space.linkType);
 

@@ -8,8 +8,6 @@ export interface LinkTypeConfig {
   imageHeight: string;
   /** Apply blue tint overlay on hero image */
   imageOverlay: boolean;
-  /** Show RSVP / action button on surface page */
-  showAction: boolean;
   /** Default action button text */
   actionLabel: string;
   /** Badge colors for preview card */
@@ -25,7 +23,6 @@ export const linkTypeConfig: Record<LinkType, LinkTypeConfig> = {
     label: "Place",
     imageHeight: "h-52",
     imageOverlay: true,
-    showAction: true,
     actionLabel: "I'm in!",
     badge: { bg: "bg-emerald-100", text: "text-emerald-700" },
     intentPlaceholder: "Friday 7PM?",
@@ -35,7 +32,6 @@ export const linkTypeConfig: Record<LinkType, LinkTypeConfig> = {
     label: "Video",
     imageHeight: "aspect-video",
     imageOverlay: false,
-    showAction: false,
     actionLabel: "I'll watch it",
     badge: { bg: "bg-red-100", text: "text-red-700" },
     intentPlaceholder: "Worth watching?",
@@ -45,7 +41,6 @@ export const linkTypeConfig: Record<LinkType, LinkTypeConfig> = {
     label: "Instagram",
     imageHeight: "aspect-square",
     imageOverlay: false,
-    showAction: false,
     actionLabel: "Interested",
     badge: { bg: "bg-pink-100", text: "text-pink-700" },
     intentPlaceholder: "Check this out",
@@ -55,7 +50,6 @@ export const linkTypeConfig: Record<LinkType, LinkTypeConfig> = {
     label: "TikTok",
     imageHeight: "aspect-[9/16]",
     imageOverlay: false,
-    showAction: false,
     actionLabel: "Interested",
     badge: { bg: "bg-gray-100", text: "text-gray-700" },
     intentPlaceholder: "Worth watching?",
@@ -65,7 +59,6 @@ export const linkTypeConfig: Record<LinkType, LinkTypeConfig> = {
     label: "Spotify",
     imageHeight: "h-20",
     imageOverlay: false,
-    showAction: false,
     actionLabel: "Interested",
     badge: { bg: "bg-green-100", text: "text-green-700" },
     intentPlaceholder: "Listen to this",
@@ -75,7 +68,6 @@ export const linkTypeConfig: Record<LinkType, LinkTypeConfig> = {
     label: "Post",
     imageHeight: "h-52",
     imageOverlay: false,
-    showAction: false,
     actionLabel: "Interested",
     badge: { bg: "bg-blue-100", text: "text-blue-700" },
     intentPlaceholder: "Check this out",
@@ -85,7 +77,6 @@ export const linkTypeConfig: Record<LinkType, LinkTypeConfig> = {
     label: "Event",
     imageHeight: "h-52",
     imageOverlay: false,
-    showAction: true,
     actionLabel: "I'm in!",
     badge: { bg: "bg-blue-100", text: "text-blue-700" },
     intentPlaceholder: "Are you going?",
@@ -95,7 +86,6 @@ export const linkTypeConfig: Record<LinkType, LinkTypeConfig> = {
     label: "Link",
     imageHeight: "h-52",
     imageOverlay: true,
-    showAction: false,
     actionLabel: "Interested",
     badge: { bg: "bg-gray-100", text: "text-gray-600" },
     intentPlaceholder: "What's the plan?",
