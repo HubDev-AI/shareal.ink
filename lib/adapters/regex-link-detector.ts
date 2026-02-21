@@ -1,38 +1,44 @@
 import type { ILinkDetector } from "@/lib/interfaces";
 import type { LinkDetectionResult, LinkType } from "@/lib/types";
+import { linkTypeConfig } from "@/lib/config/link-types";
 
 interface PatternRule {
   pattern: RegExp;
   linkType: LinkType;
-  actionLabel: string;
 }
 
 const RULES: PatternRule[] = [
   // Restaurant / Places
-  { pattern: /maps\.google\.|google\.\w+\/maps|goo\.gl\/maps/i, linkType: "restaurant", actionLabel: "I'm in!" },
-  { pattern: /yelp\.com/i, linkType: "restaurant", actionLabel: "I'm in!" },
-  { pattern: /opentable\.com/i, linkType: "restaurant", actionLabel: "I'm in!" },
-  { pattern: /resy\.com/i, linkType: "restaurant", actionLabel: "I'm in!" },
-  { pattern: /tripadvisor\.com/i, linkType: "restaurant", actionLabel: "I'm in!" },
+  { pattern: /maps\.google\.|google\.\w+\/maps|goo\.gl\/maps/i, linkType: "restaurant" },
+  { pattern: /yelp\.com/i, linkType: "restaurant" },
+  { pattern: /opentable\.com/i, linkType: "restaurant" },
+  { pattern: /resy\.com/i, linkType: "restaurant" },
+  { pattern: /tripadvisor\.com/i, linkType: "restaurant" },
 
   // Video
-  { pattern: /youtube\.com|youtu\.be/i, linkType: "video", actionLabel: "I'll watch it" },
-  { pattern: /vimeo\.com/i, linkType: "video", actionLabel: "I'll watch it" },
-  { pattern: /tiktok\.com/i, linkType: "video", actionLabel: "I'll watch it" },
+  { pattern: /youtube\.com|youtu\.be/i, linkType: "video" },
+  { pattern: /vimeo\.com/i, linkType: "video" },
+  { pattern: /tiktok\.com/i, linkType: "video" },
 
   // Events
-  { pattern: /eventbrite\.com/i, linkType: "event", actionLabel: "I'm in!" },
-  { pattern: /meetup\.com/i, linkType: "event", actionLabel: "I'm in!" },
-  { pattern: /lu\.ma/i, linkType: "event", actionLabel: "I'm in!" },
+  { pattern: /eventbrite\.com/i, linkType: "event" },
+  { pattern: /meetup\.com/i, linkType: "event" },
+  { pattern: /lu\.ma/i, linkType: "event" },
 ];
 
 export class RegexLinkDetector implements ILinkDetector {
   detect(url: string): LinkDetectionResult {
     for (const rule of RULES) {
       if (rule.pattern.test(url)) {
-        return { linkType: rule.linkType, suggestedActionLabel: rule.actionLabel };
+        return {
+          linkType: rule.linkType,
+          suggestedActionLabel: linkTypeConfig[rule.linkType].actionLabel,
+        };
       }
     }
-    return { linkType: "generic", suggestedActionLabel: "Interested" };
+    return {
+      linkType: "generic",
+      suggestedActionLabel: linkTypeConfig.generic.actionLabel,
+    };
   }
 }

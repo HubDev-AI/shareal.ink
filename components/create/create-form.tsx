@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LinkPreview } from "./link-preview";
+import { parseInput } from "@/lib/validation";
 import type { LinkType, OgMetadata } from "@/lib/types";
 
 // Matches http(s)://... or bare domains like maps.app.goo.gl/...
@@ -67,6 +68,12 @@ export function CreateForm() {
       return;
     }
 
+    const parsed = parseInput(value);
+    if (parsed.type === "too_long") {
+      setError(`Too long — max ${parsed.limit} characters`);
+      return;
+    }
+
     setError(null);
     setState("fetching");
     setMetadata(null);
@@ -86,7 +93,8 @@ export function CreateForm() {
       }
 
       if (!res.ok) {
-        setError("Something went wrong. Try again.");
+        const errData = await res.json().catch(() => null);
+        setError(errData?.error ?? "Something went wrong. Try again.");
         setState("idle");
         return;
       }
@@ -152,6 +160,8 @@ export function CreateForm() {
     if (e.key === "Enter") {
       if (state === "idle" || state === "fetching") {
         handleSubmitInput();
+      } else if (state === "previewing") {
+        handleCreate();
       }
     }
   };
@@ -194,13 +204,13 @@ export function CreateForm() {
 
         {/* Ghost echo — full URL whisper below input */}
         <AnimatePresence>
-          {isUrl && trimmed.length > 30 && (
+          {isUrl && trimmed && (
             <motion.p
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="mt-1.5 break-all px-5 text-[11px] tracking-wide text-white/25"
+              className="mt-1.5 break-all text-center text-[11px] tracking-wide text-white/25"
             >
               {trimmed}
             </motion.p>

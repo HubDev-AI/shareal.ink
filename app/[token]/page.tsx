@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { SurfaceCard } from "@/components/surface/surface-card";
+import { defaultTheme } from "@/lib/config/themes";
 import type { Metadata } from "next";
 import type { SpaceData, LinkType, IntentType } from "@/lib/types";
 
@@ -58,9 +59,11 @@ export default async function SurfacePage({ params }: PageProps) {
     responseCount: space._count.responses,
   };
 
+  const theme = defaultTheme;
+
   return (
-    <main className="bg-aurora relative flex min-h-screen flex-col items-center px-4 py-12">
-      <div className="aurora-grain" />
+    <main className={`${theme.background} relative flex min-h-screen flex-col items-center px-4 py-12`}>
+      {theme.grain && <div className="aurora-grain" />}
 
       {/* Top-left branding — clickable to home */}
       <Link
