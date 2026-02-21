@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 
 interface ActionButtonProps {
@@ -46,16 +45,30 @@ export function ActionButton({ token, label, initialCount, onCountChange }: Acti
 
   if (responded) {
     return (
-      <Button disabled variant="primary" className="w-full bg-success text-white text-base">
+      <button
+        disabled
+        className="flex w-full cursor-default items-center justify-center gap-2 rounded-xl bg-emerald-500/20 py-3.5 text-base font-medium text-emerald-300"
+      >
         <Check className="h-5 w-5" />
         You&apos;re in!
-      </Button>
+      </button>
     );
   }
 
   return (
-    <Button onClick={handleClick} loading={loading} className="w-full text-base">
-      {label}
-    </Button>
+    <button
+      onClick={handleClick}
+      disabled={loading}
+      className="w-full rounded-xl bg-white py-3.5 text-base font-semibold text-[#040c1f] transition-all active:scale-[0.97] hover:bg-white/90 disabled:opacity-50"
+    >
+      {loading ? (
+        <svg className="mx-auto h-5 w-5 animate-spin" viewBox="0 0 24 24" fill="none">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+      ) : (
+        label
+      )}
+    </button>
   );
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { ExternalLink, Share2 } from "lucide-react";
 
 interface SecondaryActionsProps {
@@ -34,16 +33,19 @@ export function SecondaryActions({ originalUrl, shareUrl, title }: SecondaryActi
           href={originalUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex flex-1 items-center justify-center gap-2 rounded-[var(--radius-md)] border border-border bg-surface px-6 py-3 text-sm font-medium text-foreground transition-colors hover:bg-gray-50"
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
         >
           <ExternalLink className="h-4 w-4" />
           Open original
         </a>
       )}
-      <Button variant="secondary" className="flex-1" onClick={handleShare}>
+      <button
+        onClick={handleShare}
+        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+      >
         <Share2 className="h-4 w-4" />
         {copied ? "Copied!" : "Share"}
-      </Button>
+      </button>
     </div>
   );
 }

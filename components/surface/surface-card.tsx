@@ -6,8 +6,10 @@ import { HeroImage } from "./hero-image";
 import { ActionButton } from "./action-button";
 import { ResponseCounter } from "./response-counter";
 import { SecondaryActions } from "./secondary-actions";
-import { TypeBadge } from "@/components/ui/type-badge";
 import type { SpaceData } from "@/lib/types";
+
+/** Link types that support the RSVP / "Interested" action */
+const ACTIONABLE_TYPES = new Set(["restaurant", "event"]);
 
 interface SurfaceCardProps {
   space: SpaceData;
@@ -16,67 +18,76 @@ interface SurfaceCardProps {
 export function SurfaceCard({ space }: SurfaceCardProps) {
   const [count, setCount] = useState(space.responseCount);
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://shareal.ink"}/${space.token}`;
+  const showAction = ACTIONABLE_TYPES.has(space.linkType);
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="mx-auto w-full max-w-lg overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface shadow-sm"
+      initial={{ opacity: 0, y: 16, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="glass-surface mx-auto w-full min-w-[340px] max-w-lg"
     >
       <HeroImage
         imageUrl={space.imageUrl}
         title={space.title}
         linkType={space.linkType}
+        originalUrl={space.originalUrl}
       />
 
-      <div className="space-y-4 p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            {space.title && (
-              <motion.h1
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.2 }}
-                className="text-xl font-bold text-foreground"
-              >
-                {space.title}
-              </motion.h1>
-            )}
-            {space.description && (
-              <motion.p
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.2 }}
-                className="mt-1 text-sm text-muted line-clamp-3"
-              >
-                {space.description}
-              </motion.p>
-            )}
-          </div>
-          <TypeBadge linkType={space.linkType} className="ml-3 shrink-0" />
+      <div className="space-y-5 p-6 pt-5">
+        {/* Title + description */}
+        <div>
+          {space.title && (
+            <motion.h1
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.3 }}
+              className="text-[22px] font-semibold leading-tight tracking-tight text-white"
+            >
+              {space.title}
+            </motion.h1>
+          )}
+          {space.description && (
+            <motion.p
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.3 }}
+              className="mt-2 text-[15px] leading-relaxed text-white/45 line-clamp-3"
+            >
+              {space.description}
+            </motion.p>
+          )}
         </div>
 
+        {/* RSVP action — only for places/events */}
+        {showAction && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.3 }}
+          >
+            <ActionButton
+              token={space.token}
+              label={space.primaryActionLabel}
+              initialCount={count}
+              onCountChange={setCount}
+            />
+          </motion.div>
+        )}
+
+        {showAction && <ResponseCounter count={count} />}
+
         <motion.div
-          initial={{ opacity: 0, y: 4 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.2 }}
+          transition={{ delay: 0.3, duration: 0.3 }}
         >
-          <ActionButton
-            token={space.token}
-            label={space.primaryActionLabel}
-            initialCount={count}
-            onCountChange={setCount}
+          <SecondaryActions
+            originalUrl={space.originalUrl}
+            shareUrl={shareUrl}
+            title={space.title}
           />
         </motion.div>
-
-        <ResponseCounter count={count} />
-
-        <SecondaryActions
-          originalUrl={space.originalUrl}
-          shareUrl={shareUrl}
-          title={space.title}
-        />
       </div>
     </motion.div>
   );
