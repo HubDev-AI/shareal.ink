@@ -13,7 +13,7 @@
   --radius-md: 12px;
   --radius-lg: 16px;
 
-  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
@@ -149,6 +149,19 @@ body {
     transparent 100%
   );
   z-index: 1;
+}
+
+/* Gradient text for text-only surfaces */
+.text-gradient-surface {
+  background: linear-gradient(
+    135deg,
+    #e8f0fe 0%,
+    #a5d4ff 40%,
+    #7ec8e3 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 @keyframes aurora-drift {

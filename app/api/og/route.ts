@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { queue, linkDetector, rateLimiter, analytics } from "@/lib/container";
 import { parseInput } from "@/lib/validation";
+import { linkTypeConfig } from "@/lib/config/link-types";
 import { getWorker } from "@/lib/worker";
 
 export async function POST(request: NextRequest) {
@@ -25,10 +26,13 @@ export async function POST(request: NextRequest) {
   if (parsed.type === "empty") {
     return NextResponse.json({ error: "Input cannot be empty" }, { status: 400 });
   }
+  if (parsed.type === "too_long") {
+    return NextResponse.json({ error: `Input too long (max ${parsed.limit} characters)` }, { status: 400 });
+  }
 
   const detection = parsed.type === "url"
     ? linkDetector.detect(parsed.value)
-    : { linkType: "generic" as const, suggestedActionLabel: "Interested" };
+    : { linkType: "generic" as const, suggestedActionLabel: linkTypeConfig.generic.actionLabel };
 
   if (parsed.type === "text") {
     analytics.track({ name: "og_skipped", properties: { reason: "free_text" } });

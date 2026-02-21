@@ -6,10 +6,9 @@ import { HeroImage } from "./hero-image";
 import { ActionButton } from "./action-button";
 import { ResponseCounter } from "./response-counter";
 import { SecondaryActions } from "./secondary-actions";
+import { linkTypeConfig } from "@/lib/config/link-types";
+import { defaultTheme } from "@/lib/config/themes";
 import type { SpaceData } from "@/lib/types";
-
-/** Link types that support the RSVP / "Interested" action */
-const ACTIONABLE_TYPES = new Set(["restaurant", "event"]);
 
 interface SurfaceCardProps {
   space: SpaceData;
@@ -18,31 +17,40 @@ interface SurfaceCardProps {
 export function SurfaceCard({ space }: SurfaceCardProps) {
   const [count, setCount] = useState(space.responseCount);
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://shareal.ink"}/${space.token}`;
-  const showAction = ACTIONABLE_TYPES.has(space.linkType);
+  const config = linkTypeConfig[space.linkType];
+  const theme = defaultTheme;
+  const showAction = config.showAction;
+  const isTextOnly = !space.originalUrl && !space.imageUrl;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className="glass-surface mx-auto w-full min-w-[340px] max-w-lg"
+      className={`${theme.card} mx-auto ${theme.cardWidth}`}
     >
-      <HeroImage
-        imageUrl={space.imageUrl}
-        title={space.title}
-        linkType={space.linkType}
-        originalUrl={space.originalUrl}
-      />
+      {!isTextOnly && (
+        <HeroImage
+          imageUrl={space.imageUrl}
+          title={space.title}
+          linkType={space.linkType}
+          originalUrl={space.originalUrl}
+        />
+      )}
 
-      <div className="space-y-5 p-6 pt-5">
-        {/* Title + description — clickable */}
+      <div className={`space-y-5 ${isTextOnly ? "px-6 py-6 sm:px-8 sm:py-7" : "p-6 pt-5"}`}>
+        {/* Title + description */}
         <div>
           {space.title && (
             <motion.h1
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.3 }}
-              className="text-[22px] font-semibold leading-tight tracking-tight text-white"
+              className={
+                isTextOnly
+                  ? `${theme.textTitle} text-gradient-surface`
+                  : "text-[22px] font-semibold leading-tight tracking-tight text-white"
+              }
             >
               {space.originalUrl ? (
                 <a
@@ -58,12 +66,13 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
               )}
             </motion.h1>
           )}
+
           {space.description && (
             <motion.p
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.3 }}
-              className="mt-2 text-[15px] leading-relaxed text-white/45 line-clamp-3"
+              className="mt-2 whitespace-pre-line text-[15px] leading-relaxed text-white/45 line-clamp-4"
             >
               {space.description}
             </motion.p>
@@ -99,6 +108,18 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
             title={space.title}
           />
         </motion.div>
+
+        {/* Ghost echo — full URL whisper */}
+        {space.originalUrl && (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4, duration: 0.3 }}
+            className="break-all text-center text-[11px] tracking-wide text-white/20"
+          >
+            {space.originalUrl}
+          </motion.p>
+        )}
       </div>
     </motion.div>
   );

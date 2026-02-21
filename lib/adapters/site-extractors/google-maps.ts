@@ -21,25 +21,35 @@ export const googleMapsExtractor: SiteExtractor = {
   extract(finalUrl: string, og: OgMetadata) {
     try {
       const u = new URL(finalUrl);
+      const coords = extractCoords(u.pathname + u.search);
 
       // /maps/place/Place+Name/@lat,lng
       const placeMatch = u.pathname.match(/\/place\/([^/@]+)/);
       if (placeMatch) {
-        const name = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
-        return {
-          title: name,
-          description: isGenericDescription(og.description) ? null : og.description,
-        };
+        const name = decodeURIComponent(placeMatch[1].replace(/\+/g, " ")).trim();
+        if (name) {
+          return {
+            title: name,
+            description: buildDescription(og.description, coords),
+          };
+        }
       }
 
       // /maps/search/Query/@lat,lng
       const searchMatch = u.pathname.match(/\/maps\/search\/([^/@]+)/);
       if (searchMatch) {
-        const query = decodeURIComponent(searchMatch[1].replace(/\+/g, " "));
-        return {
-          title: query,
-          description: isGenericDescription(og.description) ? null : og.description,
-        };
+        const query = decodeURIComponent(searchMatch[1].replace(/\+/g, " ")).trim();
+        if (query) {
+          return {
+            title: query,
+            description: buildDescription(og.description, coords),
+          };
+        }
+      }
+
+      // No place/search match but still a maps link — keep OG, add coords
+      if (coords) {
+        return { description: buildDescription(og.description, coords) };
       }
     } catch {
       // ignore
@@ -49,7 +59,24 @@ export const googleMapsExtractor: SiteExtractor = {
   },
 };
 
+/** Extract lat,lng from @lat,lng,zoom pattern in the URL */
+function extractCoords(path: string): string | null {
+  const m = path.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (!m) return null;
+  return `${m[1]}, ${m[2]}`;
+}
+
 function isGenericDescription(desc: string | null): boolean {
   if (!desc) return true;
   return GENERIC_DESCRIPTIONS.includes(desc.toLowerCase().trim());
+}
+
+function buildDescription(ogDesc: string | null, coords: string | null): string {
+  // If OG has a real (non-generic) description, use it + append coords
+  if (!isGenericDescription(ogDesc)) {
+    return coords ? `${ogDesc}\n${coords}` : ogDesc!;
+  }
+  // Otherwise build from coords
+  if (coords) return coords;
+  return "View on Google Maps";
 }
