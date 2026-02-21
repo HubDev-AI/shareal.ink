@@ -48,7 +48,7 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
               transition={{ delay: 0.15, duration: 0.3 }}
               className={
                 isTextOnly
-                  ? `${theme.textTitle} text-gradient-surface`
+                  ? `${theme.textTitle} bg-gradient-to-br from-white via-cyan-100 to-cyan-300 bg-clip-text text-transparent`
                   : "text-[22px] font-semibold leading-tight tracking-tight text-white"
               }
             >
