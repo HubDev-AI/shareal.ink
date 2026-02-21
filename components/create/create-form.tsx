@@ -188,7 +188,6 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
   const isUrl = useMemo(() => URL_RE.test(trimmed), [trimmed]);
 
   const showPreview = state !== "idle";
-  const showCreateButton = state === "fetching" || state === "previewing" || state === "creating";
 
   return (
     <div className="mx-auto w-full max-w-lg space-y-4">
@@ -243,43 +242,44 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
         )}
       </div>
 
-      {showPreview && (
-        <LinkPreview
-          linkType={linkType}
-          metadata={metadata}
-          loading={state === "fetching"}
-          title={freeTextTitle}
-          className="border-white/15 bg-white/8 text-white backdrop-blur-md [&_h3]:text-white [&_p]:text-white/60"
-        />
-      )}
+      <div
+        className="grid transition-all duration-400 ease-in-out"
+        style={{ gridTemplateRows: showPreview ? "1fr" : "0fr", opacity: showPreview ? 1 : 0 }}
+      >
+        <div className="overflow-hidden">
+          <div className="space-y-4 pt-1">
+            <LinkPreview
+              linkType={linkType}
+              metadata={metadata}
+              loading={state === "fetching"}
+              title={freeTextTitle}
+              className="border-white/15 bg-white/8 text-white backdrop-blur-md [&_h3]:text-white [&_p]:text-white/60"
+            />
 
-      {showPreview && (
-        <Input
-          value={intentText}
-          onChange={(e) => setIntentText(e.target.value)}
-          placeholder={linkTypeConfig[linkType].intentPlaceholder}
-          disabled={state === "creating"}
-          className="input-glass"
-        />
-      )}
+            <Input
+              value={intentText}
+              onChange={(e) => setIntentText(e.target.value)}
+              placeholder={linkTypeConfig[linkType].intentPlaceholder}
+              disabled={state === "creating"}
+              className="input-glass"
+            />
 
-      {showPreview && (
-        <IntentTypePills
-          value={intentType}
-          onChange={setIntentType}
-          disabled={state === "creating"}
-        />
-      )}
+            <IntentTypePills
+              value={intentType}
+              onChange={setIntentType}
+              disabled={state === "creating"}
+            />
 
-      {showCreateButton && (
-        <Button
-          onClick={handleCreate}
-          loading={state === "creating"}
-          className="w-full text-base bg-white text-[#040c1f] hover:bg-white/90"
-        >
-          Create shareable link
-        </Button>
-      )}
+            <Button
+              onClick={handleCreate}
+              loading={state === "creating"}
+              className="w-full text-base bg-white text-[#040c1f] hover:bg-white/90"
+            >
+              Create shareable link
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
