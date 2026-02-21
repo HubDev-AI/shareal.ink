@@ -36,7 +36,7 @@ enum ResponseType {
 
 model Space {
   id                 String      @id @default(cuid())
-  token              String      @unique @db.VarChar(22)
+  token              String      @unique @db.VarChar(7)
   originalUrl        String?     @map("original_url")
   title              String?
   description        String?
