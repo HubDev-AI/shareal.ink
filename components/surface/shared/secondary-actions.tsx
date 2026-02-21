@@ -33,7 +33,7 @@ export function SecondaryActions({ originalUrl, shareUrl, title }: SecondaryActi
           href={originalUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/8 bg-white/5 px-5 py-3 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
         >
           <ExternalLink className="h-4 w-4 text-cyan-400" />
           <span className="whitespace-nowrap">Open original</span>
@@ -41,9 +41,9 @@ export function SecondaryActions({ originalUrl, shareUrl, title }: SecondaryActi
       )}
       <button
         onClick={handleShare}
-        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+        className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-medium text-white/40 transition-colors hover:text-white/60"
       >
-        <Share2 className="h-4 w-4 text-cyan-400" />
+        <Share2 className="h-4 w-4" />
         {copied ? "Copied!" : "Share a link"}
       </button>
     </div>
