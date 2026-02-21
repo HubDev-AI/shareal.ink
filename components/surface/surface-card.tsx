@@ -20,7 +20,7 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://shareal.ink"}/${space.token}`;
   const config = linkTypeConfig[space.linkType];
   const theme = defaultTheme;
-  const showAction = config.showAction;
+  const showAction = space.intentType !== "share";
   const Renderer = getRenderer(space.linkType);
 
   return (
