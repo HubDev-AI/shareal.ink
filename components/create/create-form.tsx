@@ -190,13 +190,12 @@ export function CreateForm() {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Paste a link or type anything..."
-            error={error ?? undefined}
             disabled={state === "creating"}
             autoFocus
             className="input-glass"
           />
           {state === "idle" && trimmed && (
-            <Button onClick={handleSubmitInput} variant="secondary" className="shrink-0 border-white/15 bg-white/10 text-white hover:bg-white/15">
+            <Button onClick={handleSubmitInput} variant="secondary" className="shrink-0 self-stretch border-white/15 bg-white/10 text-white hover:bg-white/15">
               Preview
             </Button>
           )}
@@ -216,6 +215,11 @@ export function CreateForm() {
             </motion.p>
           )}
         </AnimatePresence>
+
+        {/* Error below ghost URL */}
+        {error && (
+          <p className="mt-1.5 text-center text-sm text-red-300">{error}</p>
+        )}
       </div>
 
       {showPreview && (
