@@ -110,6 +110,33 @@ body {
   pointer-events: none;
 }
 
+/* Adaptive aurora tinting per link type */
+:root {
+  --aurora-tint: transparent;
+}
+
+.aurora-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    var(--aurora-tint) 0%,
+    transparent 70%
+  );
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.aurora-google_maps { --aurora-tint: #f59e0b; }
+.aurora-youtube     { --aurora-tint: #ef4444; }
+.aurora-instagram   { --aurora-tint: #d946ef; }
+.aurora-tiktok      { --aurora-tint: #6b7280; }
+.aurora-spotify     { --aurora-tint: #22c55e; }
+.aurora-x_twitter   { --aurora-tint: #3b82f6; }
+.aurora-event       { --aurora-tint: #8b5cf6; }
+.aurora-generic     { --aurora-tint: transparent; }
+
 /* Liquid glass surface panel */
 .glass-surface {
   background: linear-gradient(
