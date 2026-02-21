@@ -73,7 +73,7 @@ export default async function SurfacePage({ params }: PageProps) {
         One link = One beautiful surface.
       </Link>
 
-      <div className="relative z-10 flex flex-1 items-start justify-center pt-8">
+      <div className="relative z-10 flex flex-1 items-center justify-center">
         <SurfaceCard space={spaceData} />
       </div>
 
