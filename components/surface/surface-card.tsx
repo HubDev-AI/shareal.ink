@@ -35,7 +35,7 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
       />
 
       <div className="space-y-5 p-6 pt-5">
-        {/* Title + description */}
+        {/* Title + description — clickable */}
         <div>
           {space.title && (
             <motion.h1
@@ -44,7 +44,18 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
               transition={{ delay: 0.15, duration: 0.3 }}
               className="text-[22px] font-semibold leading-tight tracking-tight text-white"
             >
-              {space.title}
+              {space.originalUrl ? (
+                <a
+                  href={space.originalUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-cyan-200"
+                >
+                  {space.title}
+                </a>
+              ) : (
+                space.title
+              )}
             </motion.h1>
           )}
           {space.description && (

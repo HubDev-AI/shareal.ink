@@ -13,7 +13,7 @@
   --radius-md: 12px;
   --radius-lg: 16px;
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
@@ -97,37 +97,55 @@ body {
 /* Liquid glass surface panel */
 .glass-surface {
   background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.08) 0%,
-    rgba(255, 255, 255, 0.03) 50%,
-    rgba(255, 255, 255, 0.06) 100%
+    160deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.06) 40%,
+    rgba(255, 255, 255, 0.10) 100%
   );
-  backdrop-filter: blur(40px) saturate(1.4);
-  -webkit-backdrop-filter: blur(40px) saturate(1.4);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(48px) saturate(1.6) brightness(1.05);
+  -webkit-backdrop-filter: blur(48px) saturate(1.6) brightness(1.05);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 24px;
   box-shadow:
-    0 0 0 0.5px rgba(255, 255, 255, 0.06) inset,
-    0 8px 32px rgba(0, 0, 0, 0.25),
-    0 2px 8px rgba(0, 0, 0, 0.15);
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 8px 40px rgba(0, 0, 0, 0.3),
+    0 2px 12px rgba(0, 0, 0, 0.2);
   overflow: hidden;
   position: relative;
 }
 
-/* Top-edge light refraction */
+/* Top-edge light refraction highlight */
 .glass-surface::before {
   content: "";
   position: absolute;
   top: 0;
-  left: 10%;
-  right: 10%;
+  left: 0;
+  right: 0;
   height: 1px;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.25) 30%,
-    rgba(255, 255, 255, 0.35) 50%,
-    rgba(255, 255, 255, 0.25) 70%,
+    rgba(255, 255, 255, 0.3) 20%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.3) 80%,
+    transparent 100%
+  );
+  z-index: 1;
+}
+
+/* Left-edge subtle light */
+.glass-surface::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
     transparent 100%
   );
   z-index: 1;
