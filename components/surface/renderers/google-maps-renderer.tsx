@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { CoordsBadge } from "../shared/coords-badge";
+import { IframeWithFallback } from "../shared/iframe-with-fallback";
 import { TruncatedText } from "../shared/truncated-text";
 import type { RendererProps } from "./renderer-props";
 
@@ -30,16 +31,14 @@ export function GoogleMapsRenderer({ space }: RendererProps) {
   return (
     <>
       {embedUrl ? (
-        <div className="relative aspect-[16/10] w-full overflow-hidden rounded-t-2xl bg-white/[0.03]">
-          <iframe
-            src={embedUrl}
-            title={space.title ?? "Map"}
-            className="absolute inset-0 h-full w-full border-0"
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-        </div>
+        <IframeWithFallback
+          src={embedUrl}
+          fallbackImage={space.imageUrl}
+          fallbackUrl={space.originalUrl}
+          title={space.title ?? "Map"}
+          className="aspect-[16/10] w-full rounded-t-2xl"
+          allowFullScreen
+        />
       ) : space.originalUrl ? (
         <a
           href={space.originalUrl}

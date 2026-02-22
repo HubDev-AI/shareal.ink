@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import type { RendererProps } from "./renderer-props";
 import { TruncatedText } from "../shared/truncated-text";
+import { IframeWithFallback } from "../shared/iframe-with-fallback";
 
 function getSpotifyEmbedUrl(space: RendererProps["space"]): string | null {
   if (space.extras?.embedUrl) {
@@ -29,15 +30,14 @@ export function SpotifyRenderer({ space }: RendererProps) {
   return (
     <>
       {embedUrl ? (
-        <div className="w-full overflow-hidden rounded-t-2xl">
-          <iframe
-            src={embedUrl}
-            title={space.title ?? "Spotify"}
-            className={`w-full border-0 ${isCompact ? "h-[152px]" : "h-[352px]"}`}
-            allow="encrypted-media"
-            loading="lazy"
-          />
-        </div>
+        <IframeWithFallback
+          src={embedUrl}
+          fallbackImage={space.imageUrl}
+          fallbackUrl={space.originalUrl}
+          title={space.title ?? "Spotify"}
+          className={`w-full rounded-t-2xl ${isCompact ? "h-[152px]" : "h-[352px]"}`}
+          allow="encrypted-media"
+        />
       ) : space.originalUrl ? (
         <a href={space.originalUrl} target="_blank" rel="noopener noreferrer"
            className="flex h-32 w-full items-center justify-center rounded-t-2xl bg-gradient-to-br from-green-500/10 to-green-700/10 text-white/40 hover:text-white/60 transition-colors">

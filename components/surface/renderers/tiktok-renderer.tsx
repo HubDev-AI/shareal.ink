@@ -5,6 +5,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { ExternalLink, Play } from "lucide-react";
 import type { RendererProps } from "./renderer-props";
+import { IframeWithFallback } from "../shared/iframe-with-fallback";
 import { TruncatedText } from "../shared/truncated-text";
 
 function getTikTokEmbedUrl(space: RendererProps["space"]): string | null {
@@ -28,12 +29,15 @@ export function TikTokRenderer({ space }: RendererProps) {
     <>
       {playing && embedUrl ? (
         <div className="relative mx-auto w-full max-w-[325px] overflow-hidden rounded-2xl bg-black m-3 mb-0">
-          <iframe
+          <IframeWithFallback
             src={embedUrl}
+            fallbackImage={thumbnail}
+            fallbackUrl={space.originalUrl}
             title={space.title ?? "TikTok video"}
-            className="h-[575px] w-full border-0"
-            allowFullScreen
+            className="h-[575px] w-full"
             allow="encrypted-media"
+            allowFullScreen
+            onFailed={() => setPlaying(false)}
           />
           {space.originalUrl && (
             <a href={space.originalUrl} target="_blank" rel="noopener noreferrer"
