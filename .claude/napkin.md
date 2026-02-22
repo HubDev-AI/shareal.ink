@@ -20,6 +20,9 @@
 | 2026-02-22 | Git | `git push` to protected branch fails — dev requires PRs | Always create feature branch, PR, then merge |
 | 2026-02-22 | UI | Pixel-art logo in QR code looks terrible at small sizes | Use actual PNG image with white circle background instead |
 | 2026-02-22 | UI | Homepage preview iframes (Google Maps) look broken/heavy | Use OG thumbnail images for all homepage previews, save iframes for surface pages |
+| 2026-02-22 | Self | Forgot to quote bracketed App Router paths in zsh (`[token]`) while reading files | Quote paths like `'app/api/spaces/[token]/route.ts'` or escape brackets |
+| 2026-02-22 | Self | Extracted worker to standalone `worker/index.ts` with inline OG scraping, losing site-specific extractors (coords, videoId, embedUrl) and extras DB writes | When extracting code to standalone process, reuse existing adapters (`MetascraperOgFetcher`) via `@/` imports — bun resolves tsconfig paths. Never inline a simplified copy of adapter logic. |
+| 2026-02-22 | Self | CSP `frame-src` allowed `maps.google.com` but Google Maps embed redirects to `www.google.com` | Always add both the direct domain AND redirect target to CSP frame-src. Test embeds in browser after CSP changes. |
 
 ## User Preferences
 - Building shareal.ink MVP - "One link = One beautiful surface"
@@ -53,6 +56,9 @@
 - TruncatedText component: useRef overflow detection + line-clamp-2 + show more/less toggle for long titles
 - QR code logo: actual PNG with white circle + errorCorrectionLevel "H" (30% recovery) — pixel art doesn't work at this scale
 - `px-1 -mx-1` trick: gives overflow-hidden containers room for focus rings without affecting layout
+- For repo linting in this workspace, ignore nested tool/worktree folders (`.claude/**`) in ESLint config or lint output will be dominated by unrelated files
+- For quick signal, run `bunx eslint app components lib` to isolate first-party lint errors from workspace noise
+- Standalone worker (`worker/index.ts`) can use `@/` imports — bun resolves tsconfig paths, no need to duplicate adapter code
 
 ## Patterns That Don't Work
 - Next.js App Router: `app/favicon.ico` takes precedence over `public/favicon.ico` — must replace the one in `app/`
@@ -70,6 +76,7 @@
 - TikTok OG scraping often returns no image (JS-rendered meta tags) — always have a no-thumbnail fallback
 - Pixel-art in QR center — too crude at QR module scale, use actual image instead
 - Iframe embeds in homepage preview cards — too heavy, shows errors; use OG images
+- Inlining simplified copies of adapter logic in standalone processes — loses site extractors, extras, and diverges from the app. Always import the real adapter.
 
 ## Domain Notes
 - Repo: https://github.com/HubDev-AI/shareal.ink
@@ -106,3 +113,5 @@
 - QR Nyra image: PR #28 — actual nyra-icon.png replaces pixel art
 - Surface card width: `sm:max-w-lg` (512px) matches homepage form width
 - Next up: auth, expiration, admin dashboard, image upload
+- TODO: Add E2E tests for all link types (Maps, YouTube, Spotify, etc.) — worker extraction + CSP bugs should have been caught by tests
+- Docker Compose: postgres, redis, app, worker — all working locally. PRs #33 #34 #35
