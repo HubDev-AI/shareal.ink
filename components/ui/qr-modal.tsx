@@ -5,21 +5,7 @@ import { X, Download } from "lucide-react";
 import QRCode from "qrcode";
 
 const QR_DARK = "#040c1f";
-
-// 9x8 pixel-art fox face
-const FOX_GRID = [
-  [1,0,0,0,0,0,0,0,1],
-  [1,1,0,0,0,0,0,1,1],
-  [0,1,1,1,1,1,1,1,0],
-  [0,1,0,1,1,1,0,1,0],
-  [0,1,1,1,1,1,1,1,0],
-  [0,0,1,0,1,0,1,0,0],
-  [0,0,0,1,1,1,0,0,0],
-  [0,0,0,0,1,0,0,0,0],
-];
-
-const FOX_COLS = FOX_GRID[0].length;
-const FOX_ROWS = FOX_GRID.length;
+const LOGO_PATH = "/nyra/nyra-icon.png";
 
 interface QrModalProps {
   url: string;
@@ -50,29 +36,21 @@ export function QrModal({ url, open, onClose }: QrModalProps) {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        // Determine module size from QR code
-        const moduleCount = QRCode.create(url, { errorCorrectionLevel: "H" }).modules.size;
-        const totalModules = moduleCount + 4; // margin: 2 on each side
-        const moduleSize = canvas.width / totalModules;
+        const logo = new Image();
+        logo.onload = () => {
+          const logoSize = 80;
+          const pad = 14;
+          const x = (canvas.width - logoSize) / 2;
+          const y = (canvas.height - logoSize) / 2;
 
-        const foxW = FOX_COLS * moduleSize;
-        const foxH = FOX_ROWS * moduleSize;
-        const offsetX = (canvas.width - foxW) / 2;
-        const offsetY = (canvas.height - foxH) / 2;
+          // White background behind logo
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(x - pad, y - pad, logoSize + pad * 2, logoSize + pad * 2);
 
-        // Clear background for fox area (with 1-module padding)
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(offsetX - moduleSize, offsetY - moduleSize, foxW + moduleSize * 2, foxH + moduleSize * 2);
-
-        // Draw fox pixels
-        ctx.fillStyle = QR_DARK;
-        for (let r = 0; r < FOX_ROWS; r++) {
-          for (let c = 0; c < FOX_COLS; c++) {
-            if (FOX_GRID[r][c]) {
-              ctx.fillRect(offsetX + c * moduleSize, offsetY + r * moduleSize, moduleSize, moduleSize);
-            }
-          }
-        }
+          // Draw logo (PNG has its own transparency)
+          ctx.drawImage(logo, x, y, logoSize, logoSize);
+        };
+        logo.src = LOGO_PATH;
       });
     }
   }, [url, open]);
@@ -104,27 +82,11 @@ export function QrModal({ url, open, onClose }: QrModalProps) {
           {svgDataUrl && (
             <div className="relative rounded-xl bg-white p-3">
               <img src={svgDataUrl} alt="QR Code" className="h-48 w-48" />
-              <svg className="absolute inset-0 m-3" viewBox="0 0 256 256" aria-hidden="true">
-                {(() => {
-                  const moduleSize = 256 / (QRCode.create(url, { errorCorrectionLevel: "H" }).modules.size + 4);
-                  const foxW = FOX_COLS * moduleSize;
-                  const foxH = FOX_ROWS * moduleSize;
-                  const ox = (256 - foxW) / 2;
-                  const oy = (256 - foxH) / 2;
-                  const rects: React.ReactElement[] = [];
-                  // White background
-                  rects.push(<rect key="bg" x={ox - moduleSize} y={oy - moduleSize} width={foxW + moduleSize * 2} height={foxH + moduleSize * 2} fill="#ffffff" />);
-                  // Fox pixels
-                  for (let r = 0; r < FOX_ROWS; r++) {
-                    for (let c = 0; c < FOX_COLS; c++) {
-                      if (FOX_GRID[r][c]) {
-                        rects.push(<rect key={`${r}-${c}`} x={ox + c * moduleSize} y={oy + r * moduleSize} width={moduleSize} height={moduleSize} fill={QR_DARK} />);
-                      }
-                    }
-                  }
-                  return rects;
-                })()}
-              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="rounded-full bg-white p-2">
+                  <img src={LOGO_PATH} alt="" className="h-8 w-8" />
+                </div>
+              </div>
             </div>
           )}
 
