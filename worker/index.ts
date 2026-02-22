@@ -3,6 +3,7 @@ import { Worker } from "bullmq";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
+import { MetascraperOgFetcher } from "@/lib/adapters/metascraper-og-fetcher";
 
 const QUEUE_NAME = "og-fetch";
 
@@ -16,67 +17,8 @@ const pool = new pg.Pool({
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-// Dynamic import metascraper (ESM modules)
-async function createScraper() {
-  const metascraper = (await import("metascraper")).default;
-  const title = (await import("metascraper-title")).default;
-  const description = (await import("metascraper-description")).default;
-  const image = (await import("metascraper-image")).default;
-  return metascraper([title(), description(), image()]);
-}
-
-// SSRF protection (standalone copy — worker runs outside Next.js)
-const PRIVATE_IP_PATTERNS = [
-  /^127\./, /^10\./, /^172\.(1[6-9]|2\d|3[01])\./, /^192\.168\./,
-  /^169\.254\./, /^0\./,
-];
-
-function isUrlSafe(url: string): boolean {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
-    const hostname = parsed.hostname;
-    if (hostname === "localhost" || hostname === "[::1]") return false;
-    const bare = hostname.replace(/^\[|\]$/g, "");
-    if (bare === "0.0.0.0" || bare === "::1" || bare === "::") return false;
-    return !PRIVATE_IP_PATTERNS.some((p) => p.test(bare));
-  } catch {
-    return false;
-  }
-}
-
-async function fetchOgMetadata(url: string) {
-  if (!isUrlSafe(url)) {
-    return { title: null, description: null, imageUrl: null };
-  }
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
-
-  try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; SharealBot/1.0; +https://shareal.ink)" },
-    });
-    const html = await response.text();
-    const scraper = await createScraper();
-    const raw = await scraper({ html, url: response.url });
-    return {
-      title: raw.title || null,
-      description: raw.description || null,
-      imageUrl: raw.image || null,
-    };
-  } catch {
-    try {
-      const hostname = new URL(url).hostname.replace("www.", "");
-      return { title: hostname, description: null, imageUrl: null };
-    } catch {
-      return { title: null, description: null, imageUrl: null };
-    }
-  } finally {
-    clearTimeout(timeout);
-  }
-}
+// Reuse the same OG fetcher adapter (includes site-specific extractors)
+const fetcher = new MetascraperOgFetcher();
 
 const redisUrl = process.env.REDIS_URL;
 if (!redisUrl) {
@@ -90,7 +32,7 @@ const worker = new Worker(
     const { ogJobId, url } = job.data as { ogJobId: string; url: string };
 
     try {
-      const metadata = await fetchOgMetadata(url);
+      const metadata = await fetcher.fetch(url);
 
       await prisma.ogJob.update({
         where: { id: ogJobId },
@@ -99,6 +41,7 @@ const worker = new Worker(
           title: metadata.title,
           description: metadata.description,
           imageUrl: metadata.imageUrl,
+          extras: metadata.extras ?? undefined,
           error: metadata.title ? null : "Failed to extract metadata",
           completedAt: new Date(),
         },
@@ -110,6 +53,7 @@ const worker = new Worker(
           title: metadata.title,
           description: metadata.description,
           imageUrl: metadata.imageUrl,
+          extras: metadata.extras ?? undefined,
         },
       });
 
