@@ -3,10 +3,11 @@ import type { AnalyticsEvent } from "@/lib/types";
 
 export class PlausibleAnalytics implements IAnalytics {
   private domain: string;
-  private apiUrl = "https://plausible.io/api/event";
+  private apiUrl: string;
 
-  constructor(domain: string) {
+  constructor(domain: string, apiUrl = "https://plausible.io/api/event") {
     this.domain = domain;
+    this.apiUrl = apiUrl;
   }
 
   track(event: AnalyticsEvent): void {

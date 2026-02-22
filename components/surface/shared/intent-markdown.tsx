@@ -1,3 +1,6 @@
+"use client";
+
+import { useRef, useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
 
@@ -58,11 +61,34 @@ const components: Components = {
 };
 
 export function IntentMarkdown({ text }: IntentMarkdownProps) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [expanded, setExpanded] = useState(false);
+  const [overflows, setOverflows] = useState(false);
+
+  useEffect(() => {
+    const el = contentRef.current;
+    if (el) {
+      setOverflows(el.scrollHeight > el.clientHeight);
+    }
+  }, [text]);
+
   return (
     <div className="mt-6 mb-2 px-6 text-center">
-      <div className="text-left">
+      <div
+        ref={contentRef}
+        className={`text-left ${expanded ? "" : "max-h-24 overflow-hidden"}`}
+      >
         <ReactMarkdown components={components}>{text}</ReactMarkdown>
       </div>
+      {overflows && (
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="mt-1 text-[13px] text-white/40 transition-colors hover:text-white/60"
+        >
+          {expanded ? "Show less" : "Show more"}
+        </button>
+      )}
     </div>
   );
 }
