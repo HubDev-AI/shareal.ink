@@ -1,0 +1,115 @@
+# Deployment Guide
+
+Three services: **Vercel** (app), **Railway** (PostgreSQL), **Upstash** (Redis).
+
+---
+
+## 1. PostgreSQL — Railway
+
+1. Create a new project at [railway.app](https://railway.app)
+2. Add a **PostgreSQL** service
+3. Copy the connection string from **Settings → Connect → DATABASE_URL**
+4. Run migrations against the production database:
+   ```bash
+   DATABASE_URL="postgresql://..." bunx prisma migrate deploy
+   ```
+
+---
+
+## 2. Redis — Upstash
+
+1. Create a database at [console.upstash.com](https://console.upstash.com)
+2. Copy these values from the database details page:
+
+| Value | Used by |
+|-------|---------|
+| `UPSTASH_REDIS_REST_URL` | Rate limiting (REST protocol) |
+| `UPSTASH_REDIS_REST_TOKEN` | Rate limiting (REST protocol) |
+| Redis URL (`rediss://...`) | BullMQ queue (`REDIS_URL`) |
+
+> Upstash provides both REST and standard Redis protocols on the same database. BullMQ needs the standard `rediss://` URL. Rate limiting uses the REST API.
+
+---
+
+## 3. App — Vercel
+
+1. Import the repo at [vercel.com/new](https://vercel.com/new)
+2. Framework preset: **Next.js**
+3. Build command: `bun run build` (Vercel auto-detects)
+4. Set environment variables:
+
+| Variable | Value |
+|----------|-------|
+| `DATABASE_URL` | Railway PostgreSQL connection string |
+| `REDIS_URL` | Upstash Redis URL (`rediss://default:...@...upstash.io:6379`) |
+| `UPSTASH_REDIS_REST_URL` | Upstash REST URL |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash REST token |
+| `NEXT_PUBLIC_APP_URL` | `https://shareal.ink` |
+| `PLAUSIBLE_DOMAIN` | `shareal.ink` (optional — omit to disable analytics) |
+
+5. Deploy
+
+---
+
+## 4. Worker — Railway
+
+The BullMQ worker needs a persistent process (can't run on serverless).
+
+1. In the same Railway project, add a **new service** → Deploy from GitHub repo
+2. Set the start command:
+   ```
+   node -e "require('./lib/worker.js').getWorker()"
+   ```
+   Or add a `worker.mjs` entrypoint (simpler):
+   ```js
+   import { getWorker } from "./lib/worker.js";
+   getWorker();
+   console.log("Worker started");
+   ```
+3. Set environment variables: `DATABASE_URL` + `REDIS_URL` (same values as Vercel)
+4. Set build command: `bun install && bun run build`
+
+> The worker shares the same `DATABASE_URL` and `REDIS_URL` as the app. No additional config needed.
+
+---
+
+## 5. Domain — Vercel
+
+1. In Vercel project settings → **Domains** → add `shareal.ink`
+2. Update DNS records at your registrar:
+   - `A` record → Vercel IP (shown in dashboard)
+   - `CNAME` for `www` → `cname.vercel-dns.com`
+3. Vercel provisions SSL automatically
+
+---
+
+## 6. Analytics — Plausible (optional)
+
+1. Add `shareal.ink` at [plausible.io](https://plausible.io)
+2. Set `PLAUSIBLE_DOMAIN=shareal.ink` in Vercel env vars
+3. The app auto-switches from NoopAnalytics to PlausibleAnalytics when this var is set
+
+---
+
+## Environment Variables — Complete Reference
+
+| Variable | Required | Where | Purpose |
+|----------|----------|-------|---------|
+| `DATABASE_URL` | Yes | Vercel + Railway worker | PostgreSQL connection |
+| `REDIS_URL` | Yes | Vercel + Railway worker | BullMQ queue |
+| `UPSTASH_REDIS_REST_URL` | Yes (prod) | Vercel | Rate limiting |
+| `UPSTASH_REDIS_REST_TOKEN` | Yes (prod) | Vercel | Rate limiting |
+| `NEXT_PUBLIC_APP_URL` | Yes | Vercel | OG meta, share URLs |
+| `PLAUSIBLE_DOMAIN` | No | Vercel | Analytics |
+| `RATE_LIMIT_MAX` | No | Vercel | Requests per window (default: 20) |
+| `RATE_LIMIT_WINDOW_MS` | No | Vercel | Window duration in ms (default: 60000) |
+
+---
+
+## Post-Deploy Checklist
+
+- [ ] Paste a URL on the homepage — preview card loads
+- [ ] Create a surface — redirects to `/[token]` with OG metadata
+- [ ] Share the surface URL — OG image/title shows in Slack/iMessage/etc
+- [ ] QR code downloads with Nyra icon in center
+- [ ] Rate limiting works (hit the endpoint 20+ times rapidly)
