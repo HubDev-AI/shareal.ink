@@ -1,49 +1,48 @@
 "use client";
 
+import { useState } from "react";
+import Image from "next/image";
+import { MapPin } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TypeBadge } from "@/components/ui/type-badge";
 import type { PreviewRendererProps } from "./preview-renderer-props";
 
-function getEmbedUrl(url: string | null, metadata: PreviewRendererProps["metadata"]): string | null {
+function getStaticMapUrl(metadata: PreviewRendererProps["metadata"]): string | null {
   const coords = metadata?.extras?.coords;
-  const title = metadata?.title;
-
-  if (title && coords) {
-    const q = encodeURIComponent(`${title} @${coords}`);
-    return `https://maps.google.com/maps?q=${q}&output=embed`;
-  }
   if (coords) {
-    return `https://maps.google.com/maps?q=${coords.replace(/\s/g, "")}&output=embed`;
-  }
-  if (url) {
-    const encoded = encodeURIComponent(url);
-    return `https://maps.google.com/maps?q=${encoded}&output=embed`;
+    const q = encodeURIComponent(coords.replace(/\s/g, ""));
+    return `https://maps.googleapis.com/maps/api/staticmap?center=${q}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7C${q}&key=`;
   }
   return null;
 }
 
 export function GoogleMapsPreview({ linkType, metadata, loading, title, originalUrl }: PreviewRendererProps) {
+  const [imageError, setImageError] = useState(false);
   const displayTitle = metadata?.title ?? title;
   const displayDescription = metadata?.description;
-  const embedUrl = getEmbedUrl(originalUrl, metadata);
+  const imageUrl = metadata?.imageUrl;
 
   return (
     <>
-      {/* Mini map iframe */}
-      {loading && !embedUrl ? (
+      {/* Map thumbnail */}
+      {loading && !imageUrl ? (
         <Skeleton className="h-[200px] w-full rounded-none" />
-      ) : embedUrl ? (
-        <div className="relative h-[200px] w-full overflow-hidden">
-          <iframe
-            src={embedUrl}
-            title={displayTitle ?? "Map"}
-            className="absolute inset-0 h-full w-full border-0"
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
+      ) : imageUrl && !imageError ? (
+        <div className="relative h-[200px] w-full">
+          <Image
+            src={imageUrl}
+            alt={displayTitle ?? "Map"}
+            fill
+            className="object-cover"
+            onError={() => setImageError(true)}
+            unoptimized
           />
         </div>
-      ) : null}
+      ) : (
+        <div className="flex h-[200px] w-full items-center justify-center bg-white/[0.03]">
+          <MapPin className="h-10 w-10 text-white/20" />
+        </div>
+      )}
 
       {/* Content */}
       <div className="p-4">
