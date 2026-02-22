@@ -16,7 +16,7 @@ const components: Components = {
     <h3 className="mb-2 text-[16px] font-semibold text-cyan-100">{children}</h3>
   ),
   p: ({ children }) => (
-    <p className="mb-2 last:mb-0 text-[16px] leading-relaxed text-cyan-200/80">{children}</p>
+    <p className="mb-1 last:mb-0 text-[15px] leading-normal text-cyan-200/80">{children}</p>
   ),
   ul: ({ children }) => (
     <ul className="mb-2 ml-4 list-disc space-y-1 text-[15px] text-cyan-200/80">{children}</ul>
