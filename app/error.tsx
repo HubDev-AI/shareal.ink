@@ -26,6 +26,7 @@ export default function Error({
         >
           Try again
         </button>
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- Error boundary: router may be broken */}
         <a
           href="/"
           className="rounded-xl border border-white/10 px-6 py-2.5 text-sm font-medium text-white/60 transition-colors hover:text-white"

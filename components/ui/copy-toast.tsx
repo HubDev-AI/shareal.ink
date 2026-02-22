@@ -1,21 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 
 export function CopyToast() {
   const [visible, setVisible] = useState(false);
+  const checked = useRef(false);
 
   useEffect(() => {
+    if (checked.current) return;
+    checked.current = true;
+
     try {
-      if (sessionStorage.getItem("link-copied")) {
-        setVisible(true);
-        const timer = setTimeout(() => {
-          setVisible(false);
-          try { sessionStorage.removeItem("link-copied"); } catch {}
-        }, 2500);
-        return () => clearTimeout(timer);
-      }
+      const copied = sessionStorage.getItem("link-copied");
+      if (!copied) return;
+
+      // Defer state update to avoid synchronous setState in effect
+      const showTimer = setTimeout(() => setVisible(true), 0);
+      const hideTimer = setTimeout(() => {
+        setVisible(false);
+        try { sessionStorage.removeItem("link-copied"); } catch {}
+      }, 2500);
+
+      return () => {
+        clearTimeout(showTimer);
+        clearTimeout(hideTimer);
+      };
     } catch {}
   }, []);
 
