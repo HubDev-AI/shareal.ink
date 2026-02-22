@@ -13,7 +13,7 @@ const VALID_LINK_TYPES: LinkType[] = [
 const VALID_INTENT_TYPES: IntentType[] = ["meet", "vote", "share"];
 const MAX_TITLE = 256;
 const MAX_DESCRIPTION = 2000;
-const MAX_INTENT_TEXT = 500;
+const MAX_INTENT_TEXT = 2000;
 const MAX_ACTION_LABEL = 100;
 
 export async function POST(request: NextRequest) {

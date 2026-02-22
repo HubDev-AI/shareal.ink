@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { LinkPreview } from "./link-preview";
 import { parseInput } from "@/lib/validation";
@@ -147,6 +148,10 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
   };
 
   const handleCreate = async () => {
+    if (intentText.length > 2000) {
+      setError("Intent text too long — max 2000 characters");
+      return;
+    }
     setState("creating");
     stopPolling();
 
@@ -173,7 +178,8 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
       }
 
       if (!res.ok) {
-        setError("Failed to create. Try again.");
+        const errData = await res.json().catch(() => null);
+        setError(errData?.error ?? "Failed to create. Try again.");
         setState("previewing");
         return;
       }
@@ -191,6 +197,8 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "TEXTAREA") return;
       if (state === "idle") {
         handleSubmitInput();
       } else if (state === "previewing") {
@@ -272,13 +280,20 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
               className="border-white/15 bg-white/8 text-white backdrop-blur-md [&_h3]:text-white [&_p]:text-white/60"
             />
 
-            <Input
-              value={intentText}
-              onChange={(e) => setIntentText(e.target.value)}
-              placeholder={linkTypeConfig[linkType].intentPlaceholder}
-              disabled={state === "creating"}
-              className="input-glass"
-            />
+            <div>
+              <Textarea
+                value={intentText}
+                onChange={(e) => setIntentText(e.target.value)}
+                placeholder={linkTypeConfig[linkType].intentPlaceholder}
+                disabled={state === "creating"}
+                className="input-glass"
+              />
+              {intentText.length > 1800 && (
+                <p className={`mt-1 text-right text-[12px] ${intentText.length > 2000 ? "text-red-400" : "text-white/30"}`}>
+                  {intentText.length}/2000
+                </p>
+              )}
+            </div>
 
             <IntentTypePills
               value={intentType}

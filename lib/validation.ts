@@ -1,6 +1,6 @@
 /** URLs can be long (query strings, etc.) so allow more. Text should be shorter. */
 export const MAX_URL_LENGTH = 2000;
-export const MAX_TEXT_LENGTH = 500;
+export const MAX_TEXT_LENGTH = 1000;
 
 type ParsedInput =
   | { type: "url"; value: string }

@@ -7,6 +7,7 @@ import { ActionButton } from "./shared/action-button";
 import { ResponseCounter } from "./shared/response-counter";
 import { VoteButtons } from "./shared/vote-buttons";
 import { SecondaryActions } from "./shared/secondary-actions";
+import { IntentMarkdown } from "./shared/intent-markdown";
 import { formatRelativeTime } from "@/lib/format-time";
 import { defaultTheme } from "@/lib/config/themes";
 import type { SpaceData } from "@/lib/types";
@@ -29,14 +30,13 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
       {createElement(getRenderer(space.linkType), { space, theme })}
 
       {space.intentText && (
-        <motion.p
+        <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.3 }}
-          className="mt-6 mb-2 px-6 text-center text-[17px] font-medium text-cyan-200/80"
         >
-          {space.intentText}
-        </motion.p>
+          <IntentMarkdown text={space.intentText} />
+        </motion.div>
       )}
 
       <div className="space-y-5 p-6 pt-3">
