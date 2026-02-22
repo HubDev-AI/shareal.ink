@@ -25,4 +25,5 @@ CMD ["bun", "run", "start"]
 
 # --- BullMQ worker ---
 FROM base AS worker
+EXPOSE 8080
 CMD ["bun", "run", "worker"]
