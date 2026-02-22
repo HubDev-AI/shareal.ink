@@ -26,3 +26,30 @@ describe("SEO: sitemap.xml", () => {
     expect(result[0].lastModified).toBeInstanceOf(Date);
   });
 });
+
+describe("SEO: JSON-LD structured data", () => {
+  it("contains valid WebApplication schema fields", () => {
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "shareal.ink",
+      url: "https://shareal.ink",
+      description:
+        "Turn any link into a structured, intent-aware surface your group can act on.",
+      applicationCategory: "SocialNetworkingApplication",
+      operatingSystem: "Web",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "USD",
+      },
+    };
+
+    expect(jsonLd["@context"]).toBe("https://schema.org");
+    expect(jsonLd["@type"]).toBe("WebApplication");
+    expect(jsonLd.name).toBe("shareal.ink");
+    expect(jsonLd.url).toBe("https://shareal.ink");
+    expect(jsonLd.applicationCategory).toBe("SocialNetworkingApplication");
+    expect(jsonLd.offers.price).toBe("0");
+  });
+});
