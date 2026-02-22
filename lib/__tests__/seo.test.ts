@@ -11,3 +11,18 @@ describe("SEO: robots.txt", () => {
     });
   });
 });
+
+describe("SEO: sitemap.xml", () => {
+  it("exports a function returning homepage-only sitemap", async () => {
+    const { default: sitemap } = await import("@/app/sitemap");
+    const result = sitemap();
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({
+      url: "https://shareal.ink",
+      changeFrequency: "weekly",
+      priority: 1.0,
+    });
+    expect(result[0].lastModified).toBeInstanceOf(Date);
+  });
+});
