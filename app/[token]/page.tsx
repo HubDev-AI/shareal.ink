@@ -19,11 +19,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { token } = await params;
   const space = await prisma.space.findUnique({ where: { token } });
 
-  if (!space) return { title: "Not found — shareal.ink" };
+  if (!space) return { title: "Not found — shareal.ink", robots: "noindex, nofollow" };
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://shareal.ink";
 
   return {
+    robots: "noindex, nofollow",
     title: space.title ? `${space.title} — shareal.ink` : "shareal.ink",
     description: space.description ?? "Shared on shareal.ink",
     openGraph: {
