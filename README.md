@@ -33,15 +33,17 @@ Share a link. Get a beautiful, responsive page with one-tap responses. No sign-u
 ```bash
 git clone https://github.com/HubDev-AI/shareal.ink.git
 cd shareal.ink
-docker compose up
+make up
 ```
 
-This starts all 4 services (app, worker, postgres, redis). Open [localhost:3000](http://localhost:3000).
+This starts all 4 services (app, worker, postgres, redis) and rebuilds images automatically. Open [localhost:3000](http://localhost:3000).
+
+After pulling new code, just run `make up` again — it rebuilds changed images before starting.
 
 To also start a local Plausible analytics dashboard:
 
 ```bash
-docker compose --profile analytics up
+make up-analytics
 ```
 
 Then visit [localhost:8000](http://localhost:8000) to set up Plausible and add `localhost:3000` as a site. See [docs/DEPLOY.md](docs/DEPLOY.md) for details.
@@ -51,20 +53,41 @@ Then visit [localhost:8000](http://localhost:8000) to set up Plausible and add `
 ```bash
 git clone https://github.com/HubDev-AI/shareal.ink.git
 cd shareal.ink
-bun install
+make install
 
 cp .env.example .env
-bunx prisma generate
+make generate
 bunx prisma migrate dev
 
 # Terminal 1: Next.js app
-bun run dev
+make dev
 
 # Terminal 2: BullMQ worker (processes OG fetch jobs)
-bun run worker
+make worker-dev
 ```
 
 Open [localhost:3000](http://localhost:3000).
+
+## Make Targets
+
+Run `make help` to see all available targets:
+
+| Target | Description |
+|--------|-------------|
+| `make up` | Start all services (rebuilds if code changed) |
+| `make up-d` | Start all services in background |
+| `make down` | Stop all services |
+| `make rebuild` | Full rebuild from scratch (no cache) |
+| `make logs` | Tail logs from all services |
+| `make logs-app` | Tail app logs only |
+| `make logs-worker` | Tail worker logs only |
+| `make clean` | Stop services and remove volumes (resets DB) |
+| `make dev` | Start Next.js dev server (local) |
+| `make worker-dev` | Start BullMQ worker (local) |
+| `make test` | Run unit tests |
+| `make test-e2e` | Run E2E tests |
+| `make generate` | Regenerate Prisma client |
+| `make migrate name=xyz` | Create + apply a new migration |
 
 ## Environment
 
