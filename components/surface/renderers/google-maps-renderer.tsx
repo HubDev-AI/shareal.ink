@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { CoordsBadge } from "../shared/coords-badge";
+import { TruncatedText } from "../shared/truncated-text";
 import type { RendererProps } from "./renderer-props";
 
 function getEmbedUrl(space: RendererProps["space"]): string | null {
@@ -52,20 +53,10 @@ export function GoogleMapsRenderer({ space }: RendererProps) {
 
       <div className="px-6 pt-5">
         {space.title && (
-          <motion.h1
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.3 }}
-            className="text-[22px] font-semibold leading-tight tracking-tight text-white"
-          >
-            {space.originalUrl ? (
-              <a href={space.originalUrl} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-cyan-200">
-                {space.title}
-              </a>
-            ) : (
-              space.title
-            )}
-          </motion.h1>
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15, duration: 0.3 }}>
+            <TruncatedText text={space.title} href={space.originalUrl} />
+          </motion.div>
         )}
 
         {space.description && (
@@ -73,7 +64,7 @@ export function GoogleMapsRenderer({ space }: RendererProps) {
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.3 }}
-            className="mt-2 whitespace-pre-line text-[15px] leading-relaxed text-white/45 line-clamp-4"
+            className="mt-2 whitespace-pre-line text-[15px] leading-relaxed text-white/45 line-clamp-3"
           >
             {space.description}
           </motion.p>
