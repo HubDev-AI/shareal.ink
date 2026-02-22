@@ -44,12 +44,12 @@ export function XTwitterPreview({ linkType, metadata, loading, title }: PreviewR
         ) : (
           <>
             {displayTitle && (
-              <h3 className="mb-1 text-sm font-semibold text-foreground line-clamp-2">
+              <h3 className="mb-1 text-base font-semibold leading-tight tracking-tight text-foreground line-clamp-2">
                 {displayTitle}
               </h3>
             )}
             {displayDescription && (
-              <p className="text-sm text-muted line-clamp-2">{displayDescription}</p>
+              <p className="text-[13px] leading-relaxed text-muted line-clamp-2">{displayDescription}</p>
             )}
           </>
         )}
