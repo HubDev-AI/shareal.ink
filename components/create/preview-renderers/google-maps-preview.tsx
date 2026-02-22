@@ -7,15 +7,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TypeBadge } from "@/components/ui/type-badge";
 import type { PreviewRendererProps } from "./preview-renderer-props";
 
-function getStaticMapUrl(metadata: PreviewRendererProps["metadata"]): string | null {
-  const coords = metadata?.extras?.coords;
-  if (coords) {
-    const q = encodeURIComponent(coords.replace(/\s/g, ""));
-    return `https://maps.googleapis.com/maps/api/staticmap?center=${q}&zoom=15&size=600x300&maptype=roadmap&markers=color:red%7C${q}&key=`;
-  }
-  return null;
-}
-
 export function GoogleMapsPreview({ linkType, metadata, loading, title, originalUrl }: PreviewRendererProps) {
   const [imageError, setImageError] = useState(false);
   const displayTitle = metadata?.title ?? title;
@@ -58,12 +49,12 @@ export function GoogleMapsPreview({ linkType, metadata, loading, title, original
         ) : (
           <>
             {displayTitle && (
-              <h3 className="mb-1 text-sm font-semibold text-foreground line-clamp-2">
+              <h3 className="mb-1 text-base font-semibold leading-tight tracking-tight text-foreground line-clamp-2">
                 {displayTitle}
               </h3>
             )}
             {displayDescription && (
-              <p className="text-sm text-muted line-clamp-2">{displayDescription}</p>
+              <p className="text-[13px] leading-relaxed text-muted line-clamp-2">{displayDescription}</p>
             )}
           </>
         )}

@@ -11,12 +11,11 @@ export function PdfPreview({ linkType, metadata, loading, title }: PreviewRender
 
   return (
     <>
-      {/* FileText icon with red gradient background */}
-      <div className="flex h-32 w-full items-center justify-center bg-gradient-to-br from-red-500/15 to-red-700/10">
+      <div className="flex h-32 w-full items-center justify-center gap-3 bg-gradient-to-br from-red-500/15 to-red-700/10">
         <FileText className="h-10 w-10 text-red-400/70" />
+        <span className="text-sm font-medium text-foreground/50">PDF Document</span>
       </div>
 
-      {/* Content */}
       <div className="p-4">
         <div className="mb-2 flex items-center gap-2">
           <TypeBadge linkType={linkType} />
@@ -30,12 +29,12 @@ export function PdfPreview({ linkType, metadata, loading, title }: PreviewRender
         ) : (
           <>
             {displayTitle && (
-              <h3 className="mb-1 text-sm font-semibold text-foreground line-clamp-2">
+              <h3 className="mb-1 text-base font-semibold leading-tight tracking-tight text-foreground line-clamp-2">
                 {displayTitle}
               </h3>
             )}
             {displayDescription && (
-              <p className="text-sm text-muted line-clamp-2">{displayDescription}</p>
+              <p className="text-[13px] leading-relaxed text-muted line-clamp-2">{displayDescription}</p>
             )}
           </>
         )}
