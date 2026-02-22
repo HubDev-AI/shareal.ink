@@ -4,6 +4,23 @@ import { useEffect, useRef, useState } from "react";
 import { X, Download } from "lucide-react";
 import QRCode from "qrcode";
 
+const QR_DARK = "#040c1f";
+
+// 9x8 pixel-art fox face
+const FOX_GRID = [
+  [1,0,0,0,0,0,0,0,1],
+  [1,1,0,0,0,0,0,1,1],
+  [0,1,1,1,1,1,1,1,0],
+  [0,1,0,1,1,1,0,1,0],
+  [0,1,1,1,1,1,1,1,0],
+  [0,0,1,0,1,0,1,0,0],
+  [0,0,0,1,1,1,0,0,0],
+  [0,0,0,0,1,0,0,0,0],
+];
+
+const FOX_COLS = FOX_GRID[0].length;
+const FOX_ROWS = FOX_GRID.length;
+
 interface QrModalProps {
   url: string;
   open: boolean;
@@ -25,7 +42,7 @@ export function QrModal({ url, open, onClose }: QrModalProps) {
       QRCode.toCanvas(canvasRef.current, url, {
         margin: 2,
         width: 512,
-        color: { dark: "#040c1f", light: "#ffffff" },
+        color: { dark: QR_DARK, light: "#ffffff" },
         errorCorrectionLevel: "H",
       }).then(() => {
         const canvas = canvasRef.current;
@@ -33,20 +50,29 @@ export function QrModal({ url, open, onClose }: QrModalProps) {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        const logo = new Image();
-        logo.onload = () => {
-          const logoSize = 80;
-          const x = (canvas.width - logoSize) / 2;
-          const y = (canvas.height - logoSize) / 2;
-          // White circle background
-          ctx.beginPath();
-          ctx.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2 + 4, 0, Math.PI * 2);
-          ctx.fillStyle = "#ffffff";
-          ctx.fill();
-          // Draw logo
-          ctx.drawImage(logo, x, y, logoSize, logoSize);
-        };
-        logo.src = "/nyra/nyra-icon.png";
+        // Determine module size from QR code
+        const moduleCount = QRCode.create(url, { errorCorrectionLevel: "H" }).modules.size;
+        const totalModules = moduleCount + 4; // margin: 2 on each side
+        const moduleSize = canvas.width / totalModules;
+
+        const foxW = FOX_COLS * moduleSize;
+        const foxH = FOX_ROWS * moduleSize;
+        const offsetX = (canvas.width - foxW) / 2;
+        const offsetY = (canvas.height - foxH) / 2;
+
+        // Clear background for fox area (with 1-module padding)
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(offsetX - moduleSize, offsetY - moduleSize, foxW + moduleSize * 2, foxH + moduleSize * 2);
+
+        // Draw fox pixels
+        ctx.fillStyle = QR_DARK;
+        for (let r = 0; r < FOX_ROWS; r++) {
+          for (let c = 0; c < FOX_COLS; c++) {
+            if (FOX_GRID[r][c]) {
+              ctx.fillRect(offsetX + c * moduleSize, offsetY + r * moduleSize, moduleSize, moduleSize);
+            }
+          }
+        }
       });
     }
   }, [url, open]);
@@ -78,9 +104,27 @@ export function QrModal({ url, open, onClose }: QrModalProps) {
           {svgDataUrl && (
             <div className="relative rounded-xl bg-white p-3">
               <img src={svgDataUrl} alt="QR Code" className="h-48 w-48" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <img src="/nyra/nyra-icon.png" alt="" className="h-10 w-10 rounded-full bg-white p-0.5" />
-              </div>
+              <svg className="absolute inset-0 m-3" viewBox="0 0 256 256" aria-hidden="true">
+                {(() => {
+                  const moduleSize = 256 / (QRCode.create(url, { errorCorrectionLevel: "H" }).modules.size + 4);
+                  const foxW = FOX_COLS * moduleSize;
+                  const foxH = FOX_ROWS * moduleSize;
+                  const ox = (256 - foxW) / 2;
+                  const oy = (256 - foxH) / 2;
+                  const rects: React.ReactElement[] = [];
+                  // White background
+                  rects.push(<rect key="bg" x={ox - moduleSize} y={oy - moduleSize} width={foxW + moduleSize * 2} height={foxH + moduleSize * 2} fill="#ffffff" />);
+                  // Fox pixels
+                  for (let r = 0; r < FOX_ROWS; r++) {
+                    for (let c = 0; c < FOX_COLS; c++) {
+                      if (FOX_GRID[r][c]) {
+                        rects.push(<rect key={`${r}-${c}`} x={ox + c * moduleSize} y={oy + r * moduleSize} width={moduleSize} height={moduleSize} fill={QR_DARK} />);
+                      }
+                    }
+                  }
+                  return rects;
+                })()}
+              </svg>
             </div>
           )}
 

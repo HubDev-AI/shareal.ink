@@ -249,7 +249,7 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
         className="grid transition-all duration-400 ease-in-out"
         style={{ gridTemplateRows: showPreview ? "1fr" : "0fr", opacity: showPreview ? 1 : 0 }}
       >
-        <div className="overflow-hidden">
+        <div className="overflow-hidden px-1 -mx-1">
           <div className="space-y-4 pt-1">
             <LinkPreview
               linkType={linkType}
