@@ -1,8 +1,5 @@
 export type LinkType = "google_maps" | "youtube" | "instagram" | "tiktok" | "spotify" | "x_twitter" | "event" | "pdf" | "google_doc" | "image" | "generic";
 export type IntentType = "meet" | "vote" | "share";
-export type OgJobStatus = "processing" | "completed" | "failed";
-export type ResponseType = "yes" | "no";
-
 export interface OgMetadata {
   title: string | null;
   description: string | null;
@@ -13,17 +10,6 @@ export interface OgMetadata {
 export interface LinkDetectionResult {
   linkType: LinkType;
   suggestedActionLabel: string;
-}
-
-export interface SpaceCreateInput {
-  url: string | null;
-  title: string | null;
-  description: string | null;
-  linkType: LinkType;
-  intentType: IntentType;
-  primaryActionLabel: string;
-  intentText: string | null;
-  ogJobId: string | null;
 }
 
 export interface SpaceData {
@@ -39,18 +25,6 @@ export interface SpaceData {
   extras: Record<string, string> | null;
   createdAt: Date;
   responseCount: number;
-}
-
-export interface OgJobData {
-  id: string;
-  url: string;
-  status: OgJobStatus;
-  title: string | null;
-  description: string | null;
-  imageUrl: string | null;
-  linkType: LinkType;
-  extras: Record<string, string> | null;
-  error: string | null;
 }
 
 export interface AuthUser {
