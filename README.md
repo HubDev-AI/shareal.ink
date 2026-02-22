@@ -38,6 +38,14 @@ docker compose up
 
 This starts all 4 services (app, worker, postgres, redis). Open [localhost:3000](http://localhost:3000).
 
+To also start a local Plausible analytics dashboard:
+
+```bash
+docker compose --profile analytics up
+```
+
+Then visit [localhost:8000](http://localhost:8000) to set up Plausible and add `localhost:3000` as a site. See [docs/DEPLOY.md](docs/DEPLOY.md) for details.
+
 ### Option B: Local (requires Bun, PostgreSQL, Redis)
 
 ```bash
@@ -68,6 +76,7 @@ Copy `.env.example` to `.env`. Local defaults work out of the box.
 | `REDIS_URL` | BullMQ job queue | Yes |
 | `NEXT_PUBLIC_APP_URL` | App base URL | Yes |
 | `PLAUSIBLE_DOMAIN` | Analytics (Plausible) | No |
+| `PLAUSIBLE_API_URL` | Self-hosted Plausible API URL | No |
 | `UPSTASH_REDIS_REST_URL` | Production rate limiting | No |
 | `UPSTASH_REDIS_REST_TOKEN` | Production rate limiting | No |
 | `RATE_LIMIT_MAX` | Requests per window | No |

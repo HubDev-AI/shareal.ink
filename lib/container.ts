@@ -10,7 +10,7 @@ import type { IQueue, IAuthProvider, IAnalytics, IRateLimiter, ILinkDetector } f
 export const queue: IQueue = new BullMQAdapter();
 export const auth: IAuthProvider = new NoopAuthProvider();
 export const analytics: IAnalytics = process.env.PLAUSIBLE_DOMAIN
-  ? new PlausibleAnalytics(process.env.PLAUSIBLE_DOMAIN)
+  ? new PlausibleAnalytics(process.env.PLAUSIBLE_DOMAIN, process.env.PLAUSIBLE_API_URL)
   : new NoopAnalytics();
 export const rateLimiter: IRateLimiter = process.env.UPSTASH_REDIS_REST_URL
   ? new UpstashRateLimiter()
