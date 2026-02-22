@@ -148,6 +148,10 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
   };
 
   const handleCreate = async () => {
+    if (intentText.length > 2000) {
+      setError("Intent text too long — max 2000 characters");
+      return;
+    }
     setState("creating");
     stopPolling();
 
@@ -282,11 +286,10 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
                 onChange={(e) => setIntentText(e.target.value)}
                 placeholder={linkTypeConfig[linkType].intentPlaceholder}
                 disabled={state === "creating"}
-                maxLength={2000}
                 className="input-glass"
               />
               {intentText.length > 1800 && (
-                <p className={`mt-1 text-right text-[12px] ${intentText.length >= 2000 ? "text-red-400" : "text-white/30"}`}>
+                <p className={`mt-1 text-right text-[12px] ${intentText.length > 2000 ? "text-red-400" : "text-white/30"}`}>
                   {intentText.length}/2000
                 </p>
               )}
