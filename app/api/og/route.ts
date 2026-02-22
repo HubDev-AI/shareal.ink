@@ -3,11 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { queue, linkDetector, rateLimiter, analytics } from "@/lib/container";
 import { parseInput } from "@/lib/validation";
 import { linkTypeConfig } from "@/lib/config/link-types";
-import { getWorker } from "@/lib/worker";
 
 export async function POST(request: NextRequest) {
-  // Ensure worker is running (lazy start on first request)
-  getWorker();
   const ip = request.headers.get("x-forwarded-for") ?? "unknown";
   const limit = await rateLimiter.check(`og:${ip}`);
   if (!limit.allowed) {

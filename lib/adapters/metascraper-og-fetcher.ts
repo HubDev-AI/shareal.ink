@@ -1,6 +1,7 @@
 import type { IOgFetcher } from "@/lib/interfaces";
 import type { OgMetadata } from "@/lib/types";
 import { enhanceMetadata } from "./site-extractors";
+import { isUrlSafe } from "@/lib/security";
 
 // Dynamic imports — server-only, avoid bundling issues
 async function createScraper() {
@@ -13,6 +14,10 @@ async function createScraper() {
 
 export class MetascraperOgFetcher implements IOgFetcher {
   async fetch(url: string): Promise<OgMetadata> {
+    if (!isUrlSafe(url)) {
+      return { title: null, description: null, imageUrl: null };
+    }
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
 

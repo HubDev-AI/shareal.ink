@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { sanitizeHref } from "@/lib/security";
 
 interface TruncatedTextProps {
   text: string;
@@ -22,12 +23,13 @@ export function TruncatedText({
     if (el) setIsOverflowing(el.scrollHeight > el.clientHeight + 1);
   }, [text]);
 
+  const safeHref = sanitizeHref(href);
   const baseClass = `text-[22px] font-semibold leading-tight tracking-tight text-white ${expanded ? "" : "line-clamp-2"} ${className}`;
 
-  const content = href ? (
+  const content = safeHref ? (
     <a
       ref={textRef as React.Ref<HTMLAnchorElement>}
-      href={href}
+      href={safeHref}
       target="_blank"
       rel="noopener noreferrer"
       className={`${baseClass} transition-colors hover:text-cyan-200`}

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import { linkTypeConfig } from "@/lib/config/link-types";
+import { sanitizeHref } from "@/lib/security";
 import type { LinkType } from "@/lib/types";
 
 interface HeroImageProps {
@@ -16,12 +17,13 @@ interface HeroImageProps {
 export function HeroImage({ imageUrl, title, linkType, originalUrl }: HeroImageProps) {
   const [error, setError] = useState(false);
   const config = linkTypeConfig[linkType];
+  const safeUrl = sanitizeHref(originalUrl);
 
   if (!imageUrl || error) {
-    if (originalUrl) {
+    if (safeUrl) {
       return (
         <a
-          href={originalUrl}
+          href={safeUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="group flex h-28 w-full items-center justify-center rounded-t-2xl bg-white/[0.03] px-6 transition-colors hover:bg-white/[0.06]"
@@ -50,7 +52,7 @@ export function HeroImage({ imageUrl, title, linkType, originalUrl }: HeroImageP
       {config.imageOverlay && (
         <div className="absolute inset-0 bg-[#040c1f]/25 mix-blend-multiply" />
       )}
-      {originalUrl && (
+      {safeUrl && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/20 group-hover:opacity-100">
           <ExternalLink className="h-6 w-6 text-white drop-shadow-lg" />
         </div>
@@ -58,9 +60,9 @@ export function HeroImage({ imageUrl, title, linkType, originalUrl }: HeroImageP
     </div>
   );
 
-  if (originalUrl) {
+  if (safeUrl) {
     return (
-      <a href={originalUrl} target="_blank" rel="noopener noreferrer">
+      <a href={safeUrl} target="_blank" rel="noopener noreferrer">
         {imageContent}
       </a>
     );

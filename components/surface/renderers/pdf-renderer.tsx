@@ -4,12 +4,15 @@ import { motion } from "motion/react";
 import { FileText, ExternalLink } from "lucide-react";
 import type { RendererProps } from "./renderer-props";
 import { TruncatedText } from "../shared/truncated-text";
+import { sanitizeHref } from "@/lib/security";
 
 export function PdfRenderer({ space }: RendererProps) {
+  const safeUrl = sanitizeHref(space.originalUrl);
+
   return (
     <>
       <a
-        href={space.originalUrl ?? "#"}
+        href={safeUrl ?? "#"}
         target="_blank"
         rel="noopener noreferrer"
         className="group relative flex h-32 w-full items-center justify-center gap-3 rounded-t-2xl bg-gradient-to-br from-red-500/15 to-red-700/10 transition-colors hover:from-red-500/20 hover:to-red-700/15"
@@ -29,7 +32,7 @@ export function PdfRenderer({ space }: RendererProps) {
         {space.title && (
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.15, duration: 0.3 }}>
-            <TruncatedText text={space.title} href={space.originalUrl} />
+            <TruncatedText text={space.title} href={safeUrl} />
           </motion.div>
         )}
         {space.description && (

@@ -18,33 +18,47 @@ function ensureWorker(): Worker {
     async (job) => {
       const { ogJobId, url } = job.data as { ogJobId: string; url: string };
 
-      const metadata = await fetcher.fetch(url);
+      try {
+        const metadata = await fetcher.fetch(url);
 
-      await prisma.ogJob.update({
-        where: { id: ogJobId },
-        data: {
-          status: metadata.title ? "completed" : "failed",
-          title: metadata.title,
-          description: metadata.description,
-          imageUrl: metadata.imageUrl,
-          extras: metadata.extras ?? undefined,
-          error: metadata.title ? null : "Failed to extract metadata",
-          completedAt: new Date(),
-        },
-      });
+        await prisma.ogJob.update({
+          where: { id: ogJobId },
+          data: {
+            status: metadata.title ? "completed" : "failed",
+            title: metadata.title,
+            description: metadata.description,
+            imageUrl: metadata.imageUrl,
+            extras: metadata.extras ?? undefined,
+            error: metadata.title ? null : "Failed to extract metadata",
+            completedAt: new Date(),
+          },
+        });
 
-      // If a Space already references this OgJob, enrich it
-      await prisma.space.updateMany({
-        where: { ogJobId },
-        data: {
-          title: metadata.title,
-          description: metadata.description,
-          imageUrl: metadata.imageUrl,
-          extras: metadata.extras ?? undefined,
-        },
-      });
+        // If a Space already references this OgJob, enrich it
+        await prisma.space.updateMany({
+          where: { ogJobId },
+          data: {
+            title: metadata.title,
+            description: metadata.description,
+            imageUrl: metadata.imageUrl,
+            extras: metadata.extras ?? undefined,
+          },
+        });
 
-      return metadata;
+        return metadata;
+      } catch (err) {
+        // Mark OgJob as failed so frontend stops polling
+        await prisma.ogJob.update({
+          where: { id: ogJobId },
+          data: {
+            status: "failed",
+            error: err instanceof Error ? err.message : "Unknown error",
+            completedAt: new Date(),
+          },
+        }).catch(() => {});
+
+        throw err;
+      }
     },
     {
       connection: { url: getRedisUrl() },
