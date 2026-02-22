@@ -34,9 +34,9 @@ export function YouTubePreview({ linkType, metadata, loading, title, originalUrl
     <>
       {/* 16:9 thumbnail with red play button */}
       {loading && !thumbnail ? (
-        <Skeleton className="aspect-video w-full rounded-none" />
+        <Skeleton className="aspect-video max-h-64 w-full rounded-none" />
       ) : thumbnail && !imageError ? (
-        <div className="relative aspect-video w-full">
+        <div className="relative aspect-video max-h-64 w-full">
           <Image
             src={thumbnail}
             alt={displayTitle ?? "YouTube video"}
