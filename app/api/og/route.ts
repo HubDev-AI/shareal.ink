@@ -44,20 +44,28 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const ogJob = await prisma.ogJob.create({
-    data: {
-      url: parsed.value,
+  try {
+    const ogJob = await prisma.ogJob.create({
+      data: {
+        url: parsed.value,
+        linkType: detection.linkType,
+      },
+    });
+
+    await queue.enqueue("og-fetch", { ogJobId: ogJob.id, url: parsed.value });
+    analytics.track({ name: "og_job_created", properties: { linkType: detection.linkType } });
+
+    return NextResponse.json({
+      jobId: ogJob.id,
       linkType: detection.linkType,
-    },
-  });
-
-  await queue.enqueue("og-fetch", { ogJobId: ogJob.id, url: parsed.value });
-  analytics.track({ name: "og_job_created", properties: { linkType: detection.linkType } });
-
-  return NextResponse.json({
-    jobId: ogJob.id,
-    linkType: detection.linkType,
-    suggestedActionLabel: detection.suggestedActionLabel,
-    title: null,
-  });
+      suggestedActionLabel: detection.suggestedActionLabel,
+      title: null,
+    });
+  } catch (err) {
+    console.error("[og-route] Failed to create OG job:", err);
+    return NextResponse.json(
+      { error: "Failed to process link. Please try again." },
+      { status: 500 }
+    );
+  }
 }
