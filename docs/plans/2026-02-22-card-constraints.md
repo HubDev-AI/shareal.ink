@@ -386,7 +386,88 @@ git commit -m "fix: add title truncation to remaining renderers, standardize lin
 
 ---
 
-### Task 8: Verify build + tests
+### Task 8: Add Nyra mascot to QR code center
+
+**Files:**
+- Modify: `components/ui/qr-modal.tsx`
+
+**Step 1: Update QR modal to overlay Nyra icon**
+
+The QR code is generated as SVG (for display) and canvas (for download). We need to:
+
+1. For the **display SVG**: Overlay the Nyra icon on top using absolute positioning. QR codes have built-in error correction — a small center logo (up to ~30% of area) is readable.
+
+2. For the **download canvas**: Draw the Nyra icon onto the canvas after QR generation.
+
+Changes to `components/ui/qr-modal.tsx`:
+
+Replace the SVG display section (the `{svgDataUrl && ...}` block) with:
+```tsx
+{svgDataUrl && (
+  <div className="relative rounded-xl bg-white p-3">
+    <img src={svgDataUrl} alt="QR Code" className="h-48 w-48" />
+    <div className="absolute inset-0 flex items-center justify-center">
+      <img src="/nyra/nyra-icon.png" alt="" className="h-10 w-10 rounded-full bg-white p-0.5" />
+    </div>
+  </div>
+)}
+```
+
+Update the canvas drawing in the `useEffect` to also draw Nyra on the canvas after QR generation:
+```tsx
+useEffect(() => {
+  if (!open) return;
+
+  QRCode.toString(url, { type: "svg", margin: 2, width: 256 }).then((svg) => {
+    setSvgDataUrl(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`);
+  });
+
+  if (canvasRef.current) {
+    QRCode.toCanvas(canvasRef.current, url, {
+      margin: 2,
+      width: 512,
+      color: { dark: "#040c1f", light: "#ffffff" },
+      errorCorrectionLevel: "H",
+    }).then(() => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const logo = new Image();
+      logo.onload = () => {
+        const logoSize = 80;
+        const x = (canvas.width - logoSize) / 2;
+        const y = (canvas.height - logoSize) / 2;
+        // White circle background
+        ctx.beginPath();
+        ctx.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2 + 4, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffffff";
+        ctx.fill();
+        // Draw logo
+        ctx.drawImage(logo, x, y, logoSize, logoSize);
+      };
+      logo.src = "/nyra/nyra-icon.png";
+    });
+  }
+}, [url, open]);
+```
+
+Key details:
+- `errorCorrectionLevel: "H"` — highest error correction (30% recoverable) so QR still scans with the logo overlay
+- Logo is 80px on 512px canvas (~15% area, well within tolerance)
+- White circle background ensures logo is visible regardless of QR pattern
+
+**Step 2: Commit**
+
+```bash
+git add components/ui/qr-modal.tsx
+git commit -m "feat: add Nyra mascot to QR code center"
+```
+
+---
+
+### Task 9: Verify build + tests
 
 **Step 1: Run tests**
 
@@ -410,6 +491,7 @@ Start dev server and test with:
 - An Instagram link (long caption) — image should be capped, title should show "Show more"
 - A YouTube link — image capped at 256px
 - A generic link with long OG title — truncated at 2 lines with "Show more"
+- QR code modal — Nyra icon visible in center, download PNG also has Nyra
 
 ```bash
 bun run dev
