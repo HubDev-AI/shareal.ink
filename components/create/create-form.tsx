@@ -174,7 +174,8 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
       }
 
       if (!res.ok) {
-        setError("Failed to create. Try again.");
+        const errData = await res.json().catch(() => null);
+        setError(errData?.error ?? "Failed to create. Try again.");
         setState("previewing");
         return;
       }
@@ -275,13 +276,21 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
               className="border-white/15 bg-white/8 text-white backdrop-blur-md [&_h3]:text-white [&_p]:text-white/60"
             />
 
-            <Textarea
-              value={intentText}
-              onChange={(e) => setIntentText(e.target.value)}
-              placeholder={linkTypeConfig[linkType].intentPlaceholder}
-              disabled={state === "creating"}
-              className="input-glass"
-            />
+            <div>
+              <Textarea
+                value={intentText}
+                onChange={(e) => setIntentText(e.target.value)}
+                placeholder={linkTypeConfig[linkType].intentPlaceholder}
+                disabled={state === "creating"}
+                maxLength={2000}
+                className="input-glass"
+              />
+              {intentText.length > 1800 && (
+                <p className={`mt-1 text-right text-[12px] ${intentText.length >= 2000 ? "text-red-400" : "text-white/30"}`}>
+                  {intentText.length}/2000
+                </p>
+              )}
+            </div>
 
             <IntentTypePills
               value={intentType}
