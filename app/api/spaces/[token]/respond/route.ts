@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { rateLimiter, analytics } from "@/lib/container";
+import { getClientIp } from "@/lib/get-client-ip";
 
 export async function POST(
   request: NextRequest,
@@ -8,7 +9,7 @@ export async function POST(
 ) {
   const { token } = await params;
 
-  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  const ip = getClientIp(request);
   const limit = await rateLimiter.check(`respond:${ip}:${token}`);
   if (!limit.allowed) {
     return NextResponse.json(

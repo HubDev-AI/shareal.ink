@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { createSpaceToken } from "@/lib/tokens";
 import { rateLimiter, auth, analytics } from "@/lib/container";
 import { sanitizeHref } from "@/lib/security";
+import { getClientIp } from "@/lib/get-client-ip";
 import type { LinkType, IntentType } from "@/lib/types";
 
 const VALID_LINK_TYPES: LinkType[] = [
@@ -16,7 +17,7 @@ const MAX_INTENT_TEXT = 500;
 const MAX_ACTION_LABEL = 100;
 
 export async function POST(request: NextRequest) {
-  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  const ip = getClientIp(request);
   const limit = await rateLimiter.check(`spaces:${ip}`);
   if (!limit.allowed) {
     return NextResponse.json(

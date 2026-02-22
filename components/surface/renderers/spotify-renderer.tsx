@@ -5,7 +5,13 @@ import type { RendererProps } from "./renderer-props";
 import { TruncatedText } from "../shared/truncated-text";
 
 function getSpotifyEmbedUrl(space: RendererProps["space"]): string | null {
-  if (space.extras?.embedUrl) return space.extras.embedUrl;
+  if (space.extras?.embedUrl) {
+    try {
+      const u = new URL(space.extras.embedUrl);
+      if (u.hostname === "open.spotify.com") return space.extras.embedUrl;
+    } catch { /* ignore */ }
+    return null;
+  }
   if (!space.originalUrl) return null;
   try {
     const u = new URL(space.originalUrl);

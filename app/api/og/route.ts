@@ -3,9 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { queue, linkDetector, rateLimiter, analytics } from "@/lib/container";
 import { parseInput } from "@/lib/validation";
 import { linkTypeConfig } from "@/lib/config/link-types";
+import { getClientIp } from "@/lib/get-client-ip";
 
 export async function POST(request: NextRequest) {
-  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  const ip = getClientIp(request);
   const limit = await rateLimiter.check(`og:${ip}`);
   if (!limit.allowed) {
     return NextResponse.json(
