@@ -5,6 +5,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { ExternalLink, Play } from "lucide-react";
 import type { RendererProps } from "./renderer-props";
+import { TruncatedText } from "../shared/truncated-text";
 
 function getTikTokEmbedUrl(space: RendererProps["space"]): string | null {
   const videoId = space.extras?.videoId;
@@ -42,7 +43,7 @@ export function TikTokRenderer({ space }: RendererProps) {
           )}
         </div>
       ) : thumbnail && !imgError ? (
-        <div className="group relative aspect-[9/16] max-h-96 w-full overflow-hidden rounded-2xl ring-2 ring-[#69C9D0]/50 m-3 mb-0">
+        <div className="group relative aspect-[9/16] max-h-64 w-full overflow-hidden rounded-2xl ring-2 ring-[#69C9D0]/50 m-3 mb-0">
           <Image src={thumbnail} alt={space.title ?? "TikTok video"} fill
                  className="object-cover" onError={() => setImgError(true)} unoptimized priority />
           <div className="absolute inset-0 bg-black/20 transition-colors group-hover:bg-black/35" />
@@ -77,15 +78,10 @@ export function TikTokRenderer({ space }: RendererProps) {
 
       <div className="px-6 pt-5">
         {space.title && (
-          <motion.h1 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                     transition={{ delay: 0.15, duration: 0.3 }}
-                     className="text-[22px] font-semibold leading-tight tracking-tight text-white">
-            {space.originalUrl ? (
-              <a href={space.originalUrl} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-cyan-200">
-                {space.title}
-              </a>
-            ) : space.title}
-          </motion.h1>
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15, duration: 0.3 }}>
+            <TruncatedText text={space.title} href={space.originalUrl} />
+          </motion.div>
         )}
         {space.description && (
           <motion.p initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}

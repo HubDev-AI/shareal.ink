@@ -33,8 +33,8 @@ Every external dependency has an interface (`lib/interfaces/`) and adapter (`lib
 | IOgFetcher | MetascraperOgFetcher | OG metadata extraction |
 | IQueue | BullMQAdapter | Async job queue |
 | IAuthProvider | NoopAuthProvider | Auth (noop for MVP) |
-| IAnalytics | NoopAnalytics | Analytics (noop for MVP) |
-| IRateLimiter | InMemoryRateLimiter | Rate limiting |
+| IAnalytics | NoopAnalytics / PlausibleAnalytics | Analytics (auto: PLAUSIBLE_DOMAIN) |
+| IRateLimiter | InMemoryRateLimiter / UpstashRateLimiter | Rate limiting (auto: UPSTASH_REDIS_REST_URL) |
 | ILinkDetector | RegexLinkDetector | Link type detection |
 | IImageStore | PassthroughImageStore | Image storage (noop for MVP) |
 
@@ -69,9 +69,15 @@ Every external dependency has an interface (`lib/interfaces/`) and adapter (`lib
 
 ## Environment
 ```env
+# Required
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/shareal_ink?schema=public"
 REDIS_URL="redis://localhost:6379"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
+
+# Optional (production)
+PLAUSIBLE_DOMAIN=shareal.ink          # Activates PlausibleAnalytics adapter
+UPSTASH_REDIS_REST_URL=               # Activates UpstashRateLimiter adapter
+UPSTASH_REDIS_REST_TOKEN=             # Required with UPSTASH_REDIS_REST_URL
 RATE_LIMIT_MAX=20
 RATE_LIMIT_WINDOW_MS=60000
 ```
@@ -90,7 +96,6 @@ RATE_LIMIT_WINDOW_MS=60000
 
 ## What's Next (Post-MVP)
 - Authentication (swap NoopAuthProvider)
-- Analytics (swap NoopAnalytics)
 - Space expiration
 - Vote/share intent types
 - Admin dashboard

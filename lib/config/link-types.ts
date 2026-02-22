@@ -102,7 +102,7 @@ export const linkTypeConfig: Record<LinkType, LinkTypeConfig> = {
   },
   image: {
     label: "Image",
-    imageHeight: "max-h-96",
+    imageHeight: "max-h-64",
     imageOverlay: false,
     actionLabel: "View Image",
     badge: { bg: "bg-violet-100", text: "text-violet-700" },

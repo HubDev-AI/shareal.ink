@@ -17,12 +17,37 @@ export function QrModal({ url, open, onClose }: QrModalProps) {
   useEffect(() => {
     if (!open) return;
 
-    QRCode.toString(url, { type: "svg", margin: 2, width: 256 }).then((svg) => {
+    QRCode.toString(url, { type: "svg", margin: 2, width: 256, errorCorrectionLevel: "H" }).then((svg) => {
       setSvgDataUrl(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`);
     });
 
     if (canvasRef.current) {
-      QRCode.toCanvas(canvasRef.current, url, { margin: 2, width: 512, color: { dark: "#040c1f", light: "#ffffff" } });
+      QRCode.toCanvas(canvasRef.current, url, {
+        margin: 2,
+        width: 512,
+        color: { dark: "#040c1f", light: "#ffffff" },
+        errorCorrectionLevel: "H",
+      }).then(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const logo = new Image();
+        logo.onload = () => {
+          const logoSize = 80;
+          const x = (canvas.width - logoSize) / 2;
+          const y = (canvas.height - logoSize) / 2;
+          // White circle background
+          ctx.beginPath();
+          ctx.arc(x + logoSize / 2, y + logoSize / 2, logoSize / 2 + 4, 0, Math.PI * 2);
+          ctx.fillStyle = "#ffffff";
+          ctx.fill();
+          // Draw logo
+          ctx.drawImage(logo, x, y, logoSize, logoSize);
+        };
+        logo.src = "/nyra/nyra-icon.png";
+      });
     }
   }, [url, open]);
 
@@ -51,8 +76,11 @@ export function QrModal({ url, open, onClose }: QrModalProps) {
           <h3 className="text-sm font-medium text-white/60">Scan to open</h3>
 
           {svgDataUrl && (
-            <div className="rounded-xl bg-white p-3">
+            <div className="relative rounded-xl bg-white p-3">
               <img src={svgDataUrl} alt="QR Code" className="h-48 w-48" />
+              <div className="absolute inset-0 flex items-center justify-center">
+                <img src="/nyra/nyra-icon.png" alt="" className="h-10 w-10 rounded-full bg-white p-0.5" />
+              </div>
             </div>
           )}
 

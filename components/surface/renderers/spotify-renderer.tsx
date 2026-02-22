@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import type { RendererProps } from "./renderer-props";
+import { TruncatedText } from "../shared/truncated-text";
 
 function getSpotifyEmbedUrl(space: RendererProps["space"]): string | null {
   if (space.extras?.embedUrl) return space.extras.embedUrl;
@@ -40,15 +41,10 @@ export function SpotifyRenderer({ space }: RendererProps) {
 
       <div className="px-6 pt-5">
         {space.title && (
-          <motion.h1 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                     transition={{ delay: 0.15, duration: 0.3 }}
-                     className="text-[22px] font-semibold leading-tight tracking-tight text-white">
-            {space.originalUrl ? (
-              <a href={space.originalUrl} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-cyan-200">
-                {space.title}
-              </a>
-            ) : space.title}
-          </motion.h1>
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.15, duration: 0.3 }}>
+            <TruncatedText text={space.title} href={space.originalUrl} />
+          </motion.div>
         )}
         {space.description && (
           <motion.p initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
