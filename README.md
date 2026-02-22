@@ -28,21 +28,32 @@ Share a link. Get a beautiful, responsive page with one-tap responses. No sign-u
 
 ## Quick Start
 
-**Prerequisites:** [Bun](https://bun.sh), PostgreSQL, Redis
+### Option A: Docker (recommended)
 
 ```bash
-# Clone and install
+git clone https://github.com/HubDev-AI/shareal.ink.git
+cd shareal.ink
+docker compose up
+```
+
+This starts all 4 services (app, worker, postgres, redis). Open [localhost:3000](http://localhost:3000).
+
+### Option B: Local (requires Bun, PostgreSQL, Redis)
+
+```bash
 git clone https://github.com/HubDev-AI/shareal.ink.git
 cd shareal.ink
 bun install
 
-# Set up database
 cp .env.example .env
 bunx prisma generate
 bunx prisma migrate dev
 
-# Start
+# Terminal 1: Next.js app
 bun run dev
+
+# Terminal 2: BullMQ worker (processes OG fetch jobs)
+bun run worker
 ```
 
 Open [localhost:3000](http://localhost:3000).
@@ -64,14 +75,16 @@ Copy `.env.example` to `.env`. Local defaults work out of the box.
 
 ## Deployment
 
+See [docs/DEPLOY.md](docs/DEPLOY.md) for the full deployment guide.
+
 | Service | Component | Provider |
 |---------|-----------|----------|
 | App | Next.js (serverless) | Vercel |
+| Worker | BullMQ worker (`worker/index.ts`) | Railway |
 | Database | PostgreSQL | Railway |
 | Queue + Rate Limiting | Redis | Upstash |
-| Worker | BullMQ worker process | Railway |
 
-The BullMQ worker (`lib/worker.ts`) requires a persistent process. Run it as a separate Railway service in the same project as your database.
+The app and worker are separate processes. The app enqueues OG fetch jobs to Redis; the worker processes them. On Vercel the app runs as serverless functions — the worker **must** run as a persistent process on Railway.
 
 ## Architecture
 
