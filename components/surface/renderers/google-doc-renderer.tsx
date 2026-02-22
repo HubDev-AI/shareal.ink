@@ -1,52 +1,9 @@
 "use client";
 
-import { motion } from "motion/react";
-import { FileText, FileSpreadsheet, Presentation, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { getDocSubType } from "@/lib/config/doc-sub-type";
 import type { RendererProps } from "./renderer-props";
-import { TruncatedText } from "../shared/truncated-text";
-import type { LucideIcon } from "lucide-react";
-
-interface DocSubType {
-  icon: LucideIcon;
-  label: string;
-  gradientFrom: string;
-  gradientTo: string;
-  iconColor: string;
-  iconHoverColor: string;
-}
-
-function getDocSubType(url: string | null): DocSubType {
-  if (url) {
-    if (/sheets\.google\.com/i.test(url)) {
-      return {
-        icon: FileSpreadsheet,
-        label: "Google Sheets",
-        gradientFrom: "from-green-500/15",
-        gradientTo: "to-green-700/10",
-        iconColor: "text-green-400/70",
-        iconHoverColor: "group-hover:text-green-400",
-      };
-    }
-    if (/slides\.google\.com/i.test(url)) {
-      return {
-        icon: Presentation,
-        label: "Google Slides",
-        gradientFrom: "from-yellow-500/15",
-        gradientTo: "to-yellow-700/10",
-        iconColor: "text-yellow-400/70",
-        iconHoverColor: "group-hover:text-yellow-400",
-      };
-    }
-  }
-  return {
-    icon: FileText,
-    label: "Google Doc",
-    gradientFrom: "from-blue-500/15",
-    gradientTo: "to-blue-700/10",
-    iconColor: "text-blue-400/70",
-    iconHoverColor: "group-hover:text-blue-400",
-  };
-}
+import { RendererContent } from "../shared/renderer-content";
 
 export function GoogleDocRenderer({ space }: RendererProps) {
   const sub = getDocSubType(space.originalUrl);
@@ -71,24 +28,7 @@ export function GoogleDocRenderer({ space }: RendererProps) {
         </div>
       </a>
 
-      <div className="px-6 pt-5">
-        {space.title && (
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.15, duration: 0.3 }}>
-            <TruncatedText text={space.title} href={space.originalUrl} />
-          </motion.div>
-        )}
-        {space.description && (
-          <motion.p
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.3 }}
-            className="mt-2 whitespace-pre-line text-[15px] leading-relaxed text-white/45 line-clamp-3"
-          >
-            {space.description}
-          </motion.p>
-        )}
-      </div>
+      <RendererContent title={space.title} description={space.description} href={space.originalUrl} />
     </>
   );
 }
