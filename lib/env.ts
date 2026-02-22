@@ -20,9 +20,30 @@ function optionalInt(name: string, defaultValue: number): number {
   return parsed;
 }
 
-// Required — app crashes at startup if missing
-export const DATABASE_URL = required("DATABASE_URL");
-export const REDIS_URL = required("REDIS_URL");
+// Lazy accessor — validates and returns on first call, not at import time.
+// Prevents build-time errors when Next.js pre-renders API routes.
+function lazyRequired(name: string): { readonly value: string } {
+  let cached: string | undefined;
+  return {
+    get value() {
+      if (cached === undefined) cached = required(name);
+      return cached;
+    },
+  };
+}
+
+// Required — validated lazily at first access (not import time) so
+// Next.js can pre-render pages without runtime env vars present.
+const _DATABASE_URL = lazyRequired("DATABASE_URL");
+const _REDIS_URL = lazyRequired("REDIS_URL");
+
+export function getDatabaseUrl(): string {
+  return _DATABASE_URL.value;
+}
+export function getRedisUrl(): string {
+  return _REDIS_URL.value;
+}
+
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://shareal.ink";
 
 // Optional — features degrade gracefully when unset
