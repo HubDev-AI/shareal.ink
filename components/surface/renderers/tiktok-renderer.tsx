@@ -28,7 +28,7 @@ export function TikTokRenderer({ space }: RendererProps) {
   return (
     <>
       {playing && embedUrl ? (
-        <div className="relative mx-auto w-full max-w-[325px] overflow-hidden rounded-2xl bg-black m-3 mb-0">
+        <div className="relative mx-auto w-full max-w-[325px] overflow-hidden rounded-t-2xl bg-black">
           <IframeWithFallback
             src={embedUrl}
             fallbackImage={thumbnail}
@@ -47,7 +47,7 @@ export function TikTokRenderer({ space }: RendererProps) {
           )}
         </div>
       ) : thumbnail && !imgError ? (
-        <div className="group relative aspect-[9/16] max-h-64 w-full overflow-hidden rounded-2xl ring-2 ring-[#69C9D0]/50 m-3 mb-0">
+        <div className="group relative aspect-[9/16] max-h-64 w-full overflow-hidden rounded-t-2xl">
           <Image src={thumbnail} alt={space.title ?? "TikTok video"} fill
                  className="object-cover" onError={() => setImgError(true)} unoptimized priority />
           <div className="absolute inset-0 bg-black/20 transition-colors group-hover:bg-black/35" />

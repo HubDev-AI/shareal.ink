@@ -46,7 +46,7 @@ export function SpotifyRenderer({ space }: RendererProps) {
       ) : null}
 
       <div className="px-6 pt-5">
-        {space.title && (
+        {space.title && !embedUrl && (
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.15, duration: 0.3 }}>
             <TruncatedText text={space.title} href={space.originalUrl} />

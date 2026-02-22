@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "motion/react";
-import { CoordsBadge } from "../shared/coords-badge";
 import { IframeWithFallback } from "../shared/iframe-with-fallback";
 import { TruncatedText } from "../shared/truncated-text";
 import type { RendererProps } from "./renderer-props";
@@ -25,7 +24,6 @@ function getEmbedUrl(space: RendererProps["space"]): string | null {
 }
 
 export function GoogleMapsRenderer({ space }: RendererProps) {
-  const coords = space.extras?.coords ?? null;
   const embedUrl = getEmbedUrl(space);
 
   return (
@@ -69,16 +67,6 @@ export function GoogleMapsRenderer({ space }: RendererProps) {
           </motion.p>
         )}
 
-        {coords && (
-          <motion.div
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25, duration: 0.3 }}
-            className="mt-3"
-          >
-            <CoordsBadge coords={coords} />
-          </motion.div>
-        )}
       </div>
     </>
   );

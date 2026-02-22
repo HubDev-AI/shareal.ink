@@ -50,7 +50,7 @@
 - Keyless Google Maps embed: `maps.google.com/maps?q=...&output=embed`
 - Thumbnail-first → click-to-embed pattern for all video/media renderers (YouTube, TikTok, Instagram) — avoids showing embed errors on page load
 - Instagram public embed: `instagram.com/p/{shortcode}/embed/` — no API key needed
-- Inset media from glass card edges with `m-3 mb-0 rounded-2xl` instead of `rounded-t-2xl` flush
+- Flush media rounding `rounded-t-2xl` standardized across all renderers (previously TikTok used inset `m-3 mb-0 rounded-2xl`)
 - AnimatePresence + motion.div for smooth toast enter/exit (slide + fade) — replaces conditional render pop-in
 - Homepage previews: lightweight static images only (OG thumbnails), full interactive embeds on surface pages
 - TruncatedText component: useRef overflow detection + line-clamp-2 + show more/less toggle for long titles
