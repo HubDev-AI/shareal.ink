@@ -1,82 +1,93 @@
 "use client";
 
-import { useState } from "react";
+import { useState, createElement } from "react";
 import { motion } from "motion/react";
-import { HeroImage } from "./hero-image";
-import { ActionButton } from "./action-button";
-import { ResponseCounter } from "./response-counter";
-import { SecondaryActions } from "./secondary-actions";
-import { TypeBadge } from "@/components/ui/type-badge";
+import { getRenderer } from "./renderers";
+import { ActionButton } from "./shared/action-button";
+import { ResponseCounter } from "./shared/response-counter";
+import { VoteButtons } from "./shared/vote-buttons";
+import { SecondaryActions } from "./shared/secondary-actions";
+import { IntentMarkdown } from "./shared/intent-markdown";
+import { formatRelativeTime } from "@/lib/format-time";
+import { defaultTheme } from "@/lib/config/themes";
 import type { SpaceData } from "@/lib/types";
 
 interface SurfaceCardProps {
   space: SpaceData;
 }
 
+function getDomain(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
 export function SurfaceCard({ space }: SurfaceCardProps) {
   const [count, setCount] = useState(space.responseCount);
-  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://shareal.ink"}/${space.token}`;
+  const theme = defaultTheme;
+  const domain = getDomain(space.originalUrl);
+  const timestamp = formatRelativeTime(new Date(space.createdAt));
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="mx-auto w-full max-w-lg overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface shadow-sm"
+      initial={{ opacity: 0, y: 16, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className={`${theme.card} mx-auto ${theme.cardWidth}`}
     >
-      <HeroImage
-        imageUrl={space.imageUrl}
-        title={space.title}
-        linkType={space.linkType}
-      />
+      {createElement(getRenderer(space.linkType), { space, theme })}
 
-      <div className="space-y-4 p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            {space.title && (
-              <motion.h1
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.2 }}
-                className="text-xl font-bold text-foreground"
-              >
-                {space.title}
-              </motion.h1>
-            )}
-            {space.description && (
-              <motion.p
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.2 }}
-                className="mt-1 text-sm text-muted line-clamp-3"
-              >
-                {space.description}
-              </motion.p>
-            )}
-          </div>
-          <TypeBadge linkType={space.linkType} className="ml-3 shrink-0" />
-        </div>
-
+      {space.intentText && (
         <motion.div
-          initial={{ opacity: 0, y: 4 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.2 }}
+          transition={{ delay: 0.2, duration: 0.3 }}
         >
-          <ActionButton
-            token={space.token}
-            label={space.primaryActionLabel}
-            initialCount={count}
-            onCountChange={setCount}
-          />
+          <IntentMarkdown text={space.intentText} />
         </motion.div>
+      )}
 
-        <ResponseCounter count={count} />
+      <div className="space-y-4 p-6 pt-3">
+        {space.intentType === "meet" && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.3 }}
+          >
+            <ActionButton
+              token={space.token}
+              label={space.primaryActionLabel}
+              initialCount={count}
+              onCountChange={setCount}
+            />
+          </motion.div>
+        )}
 
-        <SecondaryActions
-          originalUrl={space.originalUrl}
-          shareUrl={shareUrl}
-          title={space.title}
-        />
+        {space.intentType === "meet" && <ResponseCounter count={count} />}
+
+        {space.intentType === "vote" && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, duration: 0.3 }}
+          >
+            <VoteButtons token={space.token} />
+          </motion.div>
+        )}
+
+        <SecondaryActions originalUrl={space.originalUrl} />
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.35, duration: 0.3 }}
+          className="text-center text-[11px] tracking-wide text-white/20"
+        >
+          {domain ? `${domain} \u00b7 ${timestamp}` : timestamp}
+        </motion.p>
       </div>
     </motion.div>
   );

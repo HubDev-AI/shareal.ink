@@ -7,9 +7,16 @@ datasource db {
 }
 
 enum LinkType {
-  restaurant
-  video
+  google_maps
+  youtube
+  instagram
+  tiktok
+  spotify
+  x_twitter
   event
+  pdf
+  google_doc
+  image
   generic
 }
 
@@ -32,7 +39,7 @@ enum ResponseType {
 
 model Space {
   id                 String      @id @default(cuid())
-  token              String      @unique @db.VarChar(22)
+  token              String      @unique @db.VarChar(7)
   originalUrl        String?     @map("original_url")
   title              String?
   description        String?
@@ -40,6 +47,8 @@ model Space {
   linkType           LinkType    @map("link_type")
   intentType         IntentType  @default(meet) @map("intent_type")
   primaryActionLabel String      @map("primary_action_label")
+  intentText         String?     @map("intent_text")
+  extras             Json?       @map("extras")
   ogJobId            String?     @map("og_job_id")
   creatorUserId      String?     @map("creator_user_id")
   expiresAt          DateTime?   @map("expires_at")
@@ -48,6 +57,7 @@ model Space {
   ogJob     OgJob?     @relation(fields: [ogJobId], references: [id])
   responses Response[]
 
+  @@index([ogJobId])
   @@map("spaces")
 }
 
@@ -59,7 +69,7 @@ model Response {
 
   space Space @relation(fields: [spaceId], references: [id], onDelete: Cascade)
 
-  @@index([spaceId])
+  @@index([spaceId, responseType])
   @@map("responses")
 }
 
@@ -71,11 +81,13 @@ model OgJob {
   description String?
   imageUrl    String?     @map("image_url")
   linkType    LinkType    @map("link_type")
+  extras      Json?       @map("extras")
   error       String?
   createdAt   DateTime    @default(now()) @map("created_at")
   completedAt DateTime?   @map("completed_at")
 
   spaces Space[]
 
+  @@index([status, createdAt])
   @@map("og_jobs")
 }

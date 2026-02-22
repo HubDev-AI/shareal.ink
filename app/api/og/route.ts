@@ -2,13 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { queue, linkDetector, rateLimiter, analytics } from "@/lib/container";
 import { parseInput } from "@/lib/validation";
-import { getWorker } from "@/lib/worker";
+import { linkTypeConfig } from "@/lib/config/link-types";
+import { getClientIp } from "@/lib/get-client-ip";
 
 export async function POST(request: NextRequest) {
-  // Ensure worker is running (lazy start on first request)
-  getWorker();
-  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
-  const limit = await rateLimiter.check(ip);
+  const ip = getClientIp(request);
+  const limit = await rateLimiter.check(`og:${ip}`);
   if (!limit.allowed) {
     return NextResponse.json(
       { error: "Too many requests" },
@@ -25,10 +24,13 @@ export async function POST(request: NextRequest) {
   if (parsed.type === "empty") {
     return NextResponse.json({ error: "Input cannot be empty" }, { status: 400 });
   }
+  if (parsed.type === "too_long") {
+    return NextResponse.json({ error: `Input too long (max ${parsed.limit} characters)` }, { status: 400 });
+  }
 
   const detection = parsed.type === "url"
     ? linkDetector.detect(parsed.value)
-    : { linkType: "generic" as const, suggestedActionLabel: "Interested" };
+    : { linkType: "generic" as const, suggestedActionLabel: linkTypeConfig.generic.actionLabel };
 
   if (parsed.type === "text") {
     analytics.track({ name: "og_skipped", properties: { reason: "free_text" } });
@@ -40,20 +42,32 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const ogJob = await prisma.ogJob.create({
-    data: {
-      url: parsed.value,
+  try {
+    const ogJob = await prisma.ogJob.create({
+      data: {
+        url: parsed.value,
+        linkType: detection.linkType,
+      },
+    });
+
+    try {
+      await queue.enqueue("og-fetch", { ogJobId: ogJob.id, url: parsed.value });
+    } catch (enqueueErr) {
+      console.error("[og-route] Failed to enqueue job (Redis may be down):", enqueueErr);
+    }
+    analytics.track({ name: "og_job_created", properties: { linkType: detection.linkType } });
+
+    return NextResponse.json({
+      jobId: ogJob.id,
       linkType: detection.linkType,
-    },
-  });
-
-  await queue.enqueue("og-fetch", { ogJobId: ogJob.id, url: parsed.value });
-  analytics.track({ name: "og_job_created", properties: { linkType: detection.linkType } });
-
-  return NextResponse.json({
-    jobId: ogJob.id,
-    linkType: detection.linkType,
-    suggestedActionLabel: detection.suggestedActionLabel,
-    title: null,
-  });
+      suggestedActionLabel: detection.suggestedActionLabel,
+      title: null,
+    });
+  } catch (err) {
+    console.error("[og-route] Failed to create OG job:", err);
+    return NextResponse.json(
+      { error: "Failed to process link. Please try again." },
+      { status: 500 }
+    );
+  }
 }

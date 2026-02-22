@@ -1,5 +1,7 @@
 import type { IOgFetcher } from "@/lib/interfaces";
 import type { OgMetadata } from "@/lib/types";
+import { enhanceMetadata } from "./site-extractors";
+import { isUrlSafe } from "@/lib/security";
 
 // Dynamic imports — server-only, avoid bundling issues
 async function createScraper() {
@@ -12,6 +14,10 @@ async function createScraper() {
 
 export class MetascraperOgFetcher implements IOgFetcher {
   async fetch(url: string): Promise<OgMetadata> {
+    if (!isUrlSafe(url)) {
+      return { title: null, description: null, imageUrl: null };
+    }
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 8000);
 
@@ -23,14 +29,18 @@ export class MetascraperOgFetcher implements IOgFetcher {
         },
       });
       const html = await response.text();
+      const finalUrl = response.url; // expanded URL after redirects
       const scraper = await createScraper();
-      const metadata = await scraper({ html, url });
+      const raw = await scraper({ html, url: finalUrl });
 
-      return {
-        title: metadata.title || null,
-        description: metadata.description || null,
-        imageUrl: metadata.image || null,
+      const og: OgMetadata = {
+        title: raw.title || null,
+        description: raw.description || null,
+        imageUrl: raw.image || null,
       };
+
+      // Apply site-specific enhancements
+      return enhanceMetadata(finalUrl, og);
     } catch {
       try {
         const hostname = new URL(url).hostname.replace("www.", "");

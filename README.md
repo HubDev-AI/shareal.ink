@@ -1,36 +1,148 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# shareal.ink
 
-## Getting Started
+> One link = One beautiful surface.
 
-First, run the development server:
+Share a link. Get a beautiful, responsive page with one-tap responses. No sign-up. No app. Just paste and share.
+
+## Features
+
+- **11 link types** — YouTube, Instagram, TikTok, Spotify, Google Maps, X/Twitter, Events, PDFs, Google Docs, Images, and generic URLs
+- **Smart OG scraping** — Automatically extracts titles, descriptions, and thumbnails via async background jobs
+- **3 intent types** — Meet, Vote, or Share — each with tailored UI and response options
+- **QR codes** — Every surface gets an instant QR code for easy sharing
+- **Beautiful surfaces** — Glass-morphism cards, aurora gradients, adaptive backgrounds per intent type
+- **Zero friction** — No accounts, no sign-up. Paste a link, get a sharable surface in seconds
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript 5.9 |
+| Database | PostgreSQL via Prisma 7 |
+| Queue | BullMQ + Redis |
+| OG Scraping | metascraper |
+| Styling | Tailwind CSS 4 |
+| Animations | Motion 12 |
+| Testing | Vitest + Playwright |
+
+## Quick Start
+
+### Option A: Docker (recommended)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/HubDev-AI/shareal.ink.git
+cd shareal.ink
+make up
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This starts all 4 services (app, worker, postgres, redis) and rebuilds images automatically. Open [localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+After pulling new code, just run `make up` again — it rebuilds changed images before starting.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To also start a local Plausible analytics dashboard:
 
-## Learn More
+```bash
+make up-analytics
+```
 
-To learn more about Next.js, take a look at the following resources:
+Then visit [localhost:8000](http://localhost:8000) to set up Plausible and add `localhost:3000` as a site. See [docs/DEPLOY.md](docs/DEPLOY.md) for details.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Option B: Local (requires Bun, PostgreSQL, Redis)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+git clone https://github.com/HubDev-AI/shareal.ink.git
+cd shareal.ink
+make install
 
-## Deploy on Vercel
+cp .env.example .env
+make generate
+bunx prisma migrate dev
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+# Terminal 1: Next.js app
+make dev
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# Terminal 2: BullMQ worker (processes OG fetch jobs)
+make worker-dev
+```
+
+Open [localhost:3000](http://localhost:3000).
+
+## Make Targets
+
+Run `make help` to see all available targets:
+
+| Target | Description |
+|--------|-------------|
+| `make up` | Start all services (rebuilds if code changed) |
+| `make up-d` | Start all services in background |
+| `make down` | Stop all services |
+| `make rebuild` | Full rebuild from scratch (no cache) |
+| `make logs` | Tail logs from all services |
+| `make logs-app` | Tail app logs only |
+| `make logs-worker` | Tail worker logs only |
+| `make clean` | Stop services and remove volumes (resets DB) |
+| `make dev` | Start Next.js dev server (local) |
+| `make worker-dev` | Start BullMQ worker (local) |
+| `make test` | Run unit tests |
+| `make test-e2e` | Run E2E tests |
+| `make generate` | Regenerate Prisma client |
+| `make migrate name=xyz` | Create + apply a new migration |
+
+## Environment
+
+Copy `.env.example` to `.env`. Local defaults work out of the box.
+
+| Variable | Purpose | Required |
+|----------|---------|----------|
+| `DATABASE_URL` | PostgreSQL connection | Yes |
+| `REDIS_URL` | BullMQ job queue | Yes |
+| `NEXT_PUBLIC_APP_URL` | App base URL | Yes |
+| `PLAUSIBLE_DOMAIN` | Analytics (Plausible) | No |
+| `PLAUSIBLE_API_URL` | Self-hosted Plausible API URL | No |
+| `UPSTASH_REDIS_REST_URL` | Production rate limiting | No |
+| `UPSTASH_REDIS_REST_TOKEN` | Production rate limiting | No |
+| `RATE_LIMIT_MAX` | Requests per window | No |
+| `RATE_LIMIT_WINDOW_MS` | Rate limit window (ms) | No |
+| `SENTRY_DSN` | Error tracking (Sentry) | No |
+| `NEXT_PUBLIC_SENTRY_DSN` | Client-side error tracking | No |
+
+## CI/CD
+
+PRs to `dev` and `main` run automated checks via GitHub Actions:
+
+- **lint-and-typecheck** — `bun run build` (TypeScript via Turbopack)
+- **unit-tests** — `bun run test` (100 Vitest tests)
+- **e2e-tests** — Playwright against Postgres + Redis service containers
+
+Merges to `main` trigger [release-please](https://github.com/googleapis/release-please) which auto-creates Release PRs with CHANGELOG and semver bumps.
+
+[Dependabot](.github/dependabot.yml) opens weekly PRs for dependency updates.
+
+## Deployment
+
+See [docs/DEPLOY.md](docs/DEPLOY.md) for the full deployment guide.
+
+| Service | Component | Provider |
+|---------|-----------|----------|
+| App | Next.js (serverless) | Vercel |
+| Worker | BullMQ worker (`worker/index.ts`) | Railway |
+| Database | PostgreSQL | Railway |
+| Queue + Rate Limiting | Redis | Upstash |
+
+The app and worker are separate processes. The app enqueues OG fetch jobs to Redis; the worker processes them. On Vercel the app runs as serverless functions — the worker **must** run as a persistent process on Railway.
+
+## Architecture
+
+Every external dependency uses an adapter pattern — interface in `lib/interfaces/`, implementation in `lib/adapters/`, wired in `lib/container.ts`. Swap any dependency by changing one line.
+
+```
+lib/
+  interfaces/     # Contracts (IOgFetcher, IQueue, IAnalytics, ...)
+  adapters/       # Implementations (MetascraperOgFetcher, BullMQAdapter, ...)
+  container.ts    # Dependency wiring (change one line to swap)
+```
+
+## License
+
+MIT

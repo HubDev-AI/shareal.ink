@@ -14,7 +14,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           className={cn(
-            "w-full rounded-[var(--radius-lg)] border bg-surface px-5 py-4 text-base shadow-sm transition-colors",
+            "w-full rounded-[var(--radius-lg)] border bg-surface px-5 py-5 text-base shadow-sm transition-colors",
             "placeholder:text-muted",
             "focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2",
             error ? "border-red-400" : "border-border",
@@ -22,7 +22,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
           {...props}
         />
-        {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+        {error && <p className="mt-2 text-sm text-red-300">{error}</p>}
       </div>
     );
   }

@@ -13,7 +13,7 @@
   --radius-md: 12px;
   --radius-lg: 16px;
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
 }
 
 body {
@@ -27,4 +27,231 @@ body {
 *:focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* Vibrant blue aurora background */
+.bg-aurora {
+  position: relative;
+  overflow: hidden;
+  background: #040c1f;
+}
+
+.bg-aurora::before,
+.bg-aurora::after {
+  content: "";
+  position: absolute;
+  inset: -50%;
+  z-index: 0;
+  animation: aurora-drift 14s ease-in-out infinite alternate;
+}
+
+.bg-aurora::before {
+  background:
+    radial-gradient(ellipse 80% 50% at 15% 50%, rgba(30, 58, 180, 0.95) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 70% at 75% 15%, rgba(0, 180, 255, 0.6) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 40% at 50% 85%, rgba(20, 40, 140, 0.85) 0%, transparent 65%);
+  filter: blur(50px);
+}
+
+.bg-aurora::after {
+  background:
+    radial-gradient(ellipse 45% 60% at 85% 55%, rgba(56, 189, 248, 0.45) 0%, transparent 55%),
+    radial-gradient(ellipse 80% 35% at 25% 75%, rgba(10, 20, 80, 0.95) 0%, transparent 65%),
+    radial-gradient(ellipse 35% 50% at 55% 25%, rgba(80, 160, 240, 0.35) 0%, transparent 45%),
+    radial-gradient(ellipse 25% 25% at 70% 40%, rgba(0, 220, 255, 0.25) 0%, transparent 50%);
+  filter: blur(70px);
+  animation-delay: -7s;
+  animation-direction: alternate-reverse;
+}
+
+/* Grain overlay for texture */
+.bg-aurora > .aurora-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+  pointer-events: none;
+}
+
+/* Frosted glass input for dark backgrounds */
+.input-glass {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  color: white !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.input-glass::placeholder {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.input-glass:focus {
+  border-color: rgba(100, 200, 255, 0.25) !important;
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.2),
+    0 0 20px rgba(56, 189, 248, 0.12);
+}
+
+/* Calm zone at center where card sits */
+.aurora-calm {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    rgba(0, 0, 0, 0.15) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+}
+
+/* Adaptive aurora tinting per link type */
+:root {
+  --aurora-tint: transparent;
+}
+
+.aurora-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    var(--aurora-tint) 0%,
+    transparent 70%
+  );
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+.aurora-google_maps { --aurora-tint: #f59e0b; }
+.aurora-youtube     { --aurora-tint: #ef4444; }
+.aurora-instagram   { --aurora-tint: #d946ef; }
+.aurora-tiktok      { --aurora-tint: #6b7280; }
+.aurora-spotify     { --aurora-tint: #22c55e; }
+.aurora-x_twitter   { --aurora-tint: #3b82f6; }
+.aurora-event       { --aurora-tint: #8b5cf6; }
+.aurora-generic     { --aurora-tint: transparent; }
+
+/* Liquid glass surface panel */
+.glass-surface {
+  background: linear-gradient(
+    160deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.06) 40%,
+    rgba(255, 255, 255, 0.10) 100%
+  );
+  backdrop-filter: blur(48px) saturate(1.6) brightness(1.05);
+  -webkit-backdrop-filter: blur(48px) saturate(1.6) brightness(1.05);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 24px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    0 8px 40px rgba(0, 0, 0, 0.3),
+    0 2px 12px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Top-edge light refraction highlight */
+.glass-surface::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 20%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0.3) 80%,
+    transparent 100%
+  );
+  z-index: 1;
+}
+
+/* Left-edge subtle light */
+.glass-surface::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    transparent 100%
+  );
+  z-index: 1;
+}
+
+/* Gradient text for text-only surfaces */
+.text-gradient-surface {
+  background: linear-gradient(
+    135deg,
+    #e8f0fe 0%,
+    #a5d4ff 40%,
+    #7ec8e3 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@keyframes aurora-drift {
+  0% {
+    transform: translate(0%, 0%) rotate(0deg) scale(1);
+  }
+  33% {
+    transform: translate(4%, -2%) rotate(1.5deg) scale(1.03);
+  }
+  66% {
+    transform: translate(-2%, 4%) rotate(-0.5deg) scale(0.98);
+  }
+  100% {
+    transform: translate(1%, 1%) rotate(0.5deg) scale(1.01);
+  }
+}
+
+/* Themed scrollbars — thin, blue-tinted, matching aurora aesthetic */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.3) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
+}
+
+@keyframes label-breathe {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.55; }
+}
+
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(var(--orbit-r, 50px)) rotate(0deg); }
+  to   { transform: rotate(360deg) translateX(var(--orbit-r, 50px)) rotate(-360deg); }
 }

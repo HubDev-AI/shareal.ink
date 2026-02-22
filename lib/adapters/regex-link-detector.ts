@@ -1,38 +1,66 @@
 import type { ILinkDetector } from "@/lib/interfaces";
 import type { LinkDetectionResult, LinkType } from "@/lib/types";
+import { linkTypeConfig } from "@/lib/config/link-types";
 
 interface PatternRule {
   pattern: RegExp;
   linkType: LinkType;
-  actionLabel: string;
 }
 
 const RULES: PatternRule[] = [
-  // Restaurant / Places
-  { pattern: /maps\.google\.|google\.\w+\/maps|goo\.gl\/maps/i, linkType: "restaurant", actionLabel: "I'm in!" },
-  { pattern: /yelp\.com/i, linkType: "restaurant", actionLabel: "I'm in!" },
-  { pattern: /opentable\.com/i, linkType: "restaurant", actionLabel: "I'm in!" },
-  { pattern: /resy\.com/i, linkType: "restaurant", actionLabel: "I'm in!" },
-  { pattern: /tripadvisor\.com/i, linkType: "restaurant", actionLabel: "I'm in!" },
+  // Places / Maps
+  { pattern: /maps\.google\.|google\.\w+\/maps|goo\.gl\/maps|maps\.app\.goo\.gl/i, linkType: "google_maps" },
+  { pattern: /yelp\.com/i, linkType: "google_maps" },
+  { pattern: /opentable\.com/i, linkType: "google_maps" },
+  { pattern: /resy\.com/i, linkType: "google_maps" },
+  { pattern: /tripadvisor\.com/i, linkType: "google_maps" },
 
-  // Video
-  { pattern: /youtube\.com|youtu\.be/i, linkType: "video", actionLabel: "I'll watch it" },
-  { pattern: /vimeo\.com/i, linkType: "video", actionLabel: "I'll watch it" },
-  { pattern: /tiktok\.com/i, linkType: "video", actionLabel: "I'll watch it" },
+  // Video — YouTube
+  { pattern: /youtube\.com|youtu\.be/i, linkType: "youtube" },
+
+  // Video — TikTok
+  { pattern: /tiktok\.com/i, linkType: "tiktok" },
+
+  // Video — other (Vimeo → generic for now)
+  { pattern: /vimeo\.com/i, linkType: "generic" },
+
+  // Social — Instagram
+  { pattern: /instagram\.com/i, linkType: "instagram" },
+
+  // Social — X/Twitter
+  { pattern: /^https?:\/\/(www\.)?(x|twitter)\.com/i, linkType: "x_twitter" },
+
+  // Music — Spotify
+  { pattern: /open\.spotify\.com/i, linkType: "spotify" },
 
   // Events
-  { pattern: /eventbrite\.com/i, linkType: "event", actionLabel: "I'm in!" },
-  { pattern: /meetup\.com/i, linkType: "event", actionLabel: "I'm in!" },
-  { pattern: /lu\.ma/i, linkType: "event", actionLabel: "I'm in!" },
+  { pattern: /eventbrite\.com/i, linkType: "event" },
+  { pattern: /meetup\.com/i, linkType: "event" },
+  { pattern: /lu\.ma/i, linkType: "event" },
+
+  // Documents — PDF
+  { pattern: /\.pdf(\?|$)/i, linkType: "pdf" },
+
+  // Documents — Google Docs/Sheets/Slides/Drive
+  { pattern: /(docs|sheets|slides|drive)\.google\.com/i, linkType: "google_doc" },
+
+  // Images — direct image URLs
+  { pattern: /\.(jpe?g|png|gif|webp|svg)(\?|$)/i, linkType: "image" },
 ];
 
 export class RegexLinkDetector implements ILinkDetector {
   detect(url: string): LinkDetectionResult {
     for (const rule of RULES) {
       if (rule.pattern.test(url)) {
-        return { linkType: rule.linkType, suggestedActionLabel: rule.actionLabel };
+        return {
+          linkType: rule.linkType,
+          suggestedActionLabel: linkTypeConfig[rule.linkType].actionLabel,
+        };
       }
     }
-    return { linkType: "generic", suggestedActionLabel: "Interested" };
+    return {
+      linkType: "generic",
+      suggestedActionLabel: linkTypeConfig.generic.actionLabel,
+    };
   }
 }

@@ -1,0 +1,75 @@
+"use client";
+
+import Image from "next/image";
+import { useState } from "react";
+import { ExternalLink, Instagram, Play } from "lucide-react";
+import type { RendererProps } from "./renderer-props";
+import { IframeWithFallback } from "../shared/iframe-with-fallback";
+import { RendererContent } from "../shared/renderer-content";
+
+function getEmbedUrl(space: RendererProps["space"]): string | null {
+  const shortcode = space.extras?.shortcode;
+  if (shortcode) return `https://www.instagram.com/p/${shortcode}/embed/`;
+  return null;
+}
+
+export function InstagramRenderer({ space }: RendererProps) {
+  const [playing, setPlaying] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const embedUrl = getEmbedUrl(space);
+  const thumbnail = space.imageUrl;
+
+  return (
+    <>
+      {playing && embedUrl ? (
+        <div className="relative aspect-square max-h-64 w-full overflow-hidden rounded-t-2xl">
+          <IframeWithFallback
+            src={embedUrl}
+            fallbackImage={thumbnail}
+            fallbackUrl={space.originalUrl}
+            title={space.title ?? "Instagram post"}
+            className="h-full w-full"
+            iframeClassName="bg-white"
+            allow="encrypted-media"
+            allowFullScreen
+            onFailed={() => setPlaying(false)}
+          />
+          {space.originalUrl && (
+            <a href={space.originalUrl} target="_blank" rel="noopener noreferrer"
+               className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 backdrop-blur-sm hover:bg-black/80">
+              <ExternalLink className="h-3.5 w-3.5 text-white" />
+            </a>
+          )}
+        </div>
+      ) : thumbnail && !imgError ? (
+        <div className="group relative aspect-square max-h-64 w-full overflow-hidden rounded-t-2xl">
+          <Image src={thumbnail} alt={space.title ?? "Instagram post"} fill
+                 className="object-cover" onError={() => setImgError(true)} unoptimized priority />
+          <div className="absolute inset-0 bg-black/20 transition-colors group-hover:bg-black/35" />
+          <button type="button"
+                  onClick={() => embedUrl ? setPlaying(true) : space.originalUrl && window.open(space.originalUrl, "_blank")}
+                  className="absolute inset-0 flex cursor-pointer items-center justify-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 shadow-lg backdrop-blur-sm transition-transform group-hover:scale-110">
+              <Instagram className="h-6 w-6 text-white" />
+            </div>
+          </button>
+          {space.originalUrl && (
+            <a href={space.originalUrl} target="_blank" rel="noopener noreferrer"
+               onClick={(e) => e.stopPropagation()}
+               className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100">
+              <ExternalLink className="h-3.5 w-3.5 text-white" />
+            </a>
+          )}
+        </div>
+      ) : space.originalUrl ? (
+        <a href={space.originalUrl} target="_blank" rel="noopener noreferrer"
+           className="flex h-32 w-full items-center justify-center gap-2 rounded-t-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 text-white/40 hover:text-white/60 transition-colors">
+          <Instagram className="h-5 w-5" />
+          <span className="text-sm">View on Instagram</span>
+        </a>
+      ) : null}
+
+      <RendererContent title={space.title} description={space.description} href={space.originalUrl} />
+    </>
+  );
+}
