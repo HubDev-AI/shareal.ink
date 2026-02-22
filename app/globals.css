@@ -222,6 +222,30 @@ body {
   }
 }
 
+/* Themed scrollbars — thin, blue-tinted, matching aurora aesthetic */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(56, 189, 248, 0.3) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
+}
+
 @keyframes label-breathe {
   0%, 100% { opacity: 0.3; }
   50% { opacity: 0.55; }

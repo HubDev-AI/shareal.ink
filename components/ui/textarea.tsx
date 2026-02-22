@@ -16,7 +16,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       const el = internalRef.current;
       if (!el) return;
       el.style.height = "auto";
-      el.style.height = `${el.scrollHeight}px`;
+      el.style.height = `${Math.min(el.scrollHeight, 240)}px`;
+      el.style.overflowY = el.scrollHeight > 240 ? "auto" : "hidden";
     }, []);
 
     useEffect(() => {
