@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
-import { DATABASE_URL } from "@/lib/env";
+import { getDatabaseUrl } from "@/lib/env";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -10,7 +10,7 @@ const globalForPrisma = globalThis as unknown as {
 function createPrismaClient(): PrismaClient {
   if (!globalForPrisma.prisma) {
     const pool = new pg.Pool({
-      connectionString: DATABASE_URL,
+      connectionString: getDatabaseUrl(),
       max: 3,
       idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 5000,
