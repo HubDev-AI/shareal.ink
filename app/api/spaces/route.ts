@@ -11,7 +11,7 @@ const VALID_LINK_TYPES: LinkType[] = [
   "x_twitter", "event", "pdf", "google_doc", "image", "generic",
 ];
 const VALID_INTENT_TYPES: IntentType[] = ["meet", "vote", "share"];
-const MAX_TITLE = 256;
+const MAX_TITLE = 1000;
 const MAX_DESCRIPTION = 2000;
 const MAX_INTENT_TEXT = 2000;
 const MAX_ACTION_LABEL = 100;
