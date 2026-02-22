@@ -62,6 +62,13 @@ Every external dependency has an interface (`lib/interfaces/`) and adapter (`lib
 | `/[token]` | SSR | Surface page with dynamic OG meta |
 | `/not-found` | Static | Custom 404 |
 
+### Renderers (COUPLED — always update both together)
+Each link type has TWO renderers that must stay in sync:
+- **Surface renderers** (`components/surface/renderers/`) — full interactive cards on `/[token]` pages
+- **Preview renderers** (`components/create/preview-renderers/`) — lightweight previews on homepage create form
+
+When changing image constraints, text truncation, layout, or adding a new link type, **update both renderer sets**. Preview renderers use static images (no iframes), surface renderers use full interactive embeds.
+
 ## Prisma 7 Gotchas
 - `url` is NOT in `schema.prisma` — it's in `prisma.config.ts`
 - PrismaClient uses Proxy lazy-init to avoid build-time connection errors

@@ -17,9 +17,9 @@ export function InstagramPreview({ linkType, metadata, loading, title }: Preview
     <>
       {/* Square thumbnail with Instagram gradient circle */}
       {loading && !imageUrl ? (
-        <Skeleton className="aspect-square w-full rounded-none" />
+        <Skeleton className="aspect-square max-h-64 w-full rounded-none" />
       ) : imageUrl && !imageError ? (
-        <div className="relative aspect-square w-full">
+        <div className="relative aspect-square max-h-64 w-full">
           <Image
             src={imageUrl}
             alt={displayTitle ?? "Instagram post"}
