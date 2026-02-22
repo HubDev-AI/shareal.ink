@@ -5,6 +5,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { ExternalLink, Instagram, Play } from "lucide-react";
 import type { RendererProps } from "./renderer-props";
+import { IframeWithFallback } from "../shared/iframe-with-fallback";
 import { TruncatedText } from "../shared/truncated-text";
 
 function getEmbedUrl(space: RendererProps["space"]): string | null {
@@ -22,13 +23,17 @@ export function InstagramRenderer({ space }: RendererProps) {
   return (
     <>
       {playing && embedUrl ? (
-        <div className="relative aspect-square max-h-64 w-full overflow-hidden rounded-t-2xl bg-white">
-          <iframe
+        <div className="relative aspect-square max-h-64 w-full overflow-hidden rounded-t-2xl">
+          <IframeWithFallback
             src={embedUrl}
+            fallbackImage={thumbnail}
+            fallbackUrl={space.originalUrl}
             title={space.title ?? "Instagram post"}
-            className="absolute inset-0 h-full w-full border-0"
-            allowFullScreen
+            className="h-full w-full"
+            iframeClassName="bg-white"
             allow="encrypted-media"
+            allowFullScreen
+            onFailed={() => setPlaying(false)}
           />
           {space.originalUrl && (
             <a href={space.originalUrl} target="_blank" rel="noopener noreferrer"

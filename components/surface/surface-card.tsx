@@ -16,10 +16,21 @@ interface SurfaceCardProps {
   space: SpaceData;
 }
 
+function getDomain(url: string | null): string | null {
+  if (!url) return null;
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return null;
+  }
+}
+
 export function SurfaceCard({ space }: SurfaceCardProps) {
   const [count, setCount] = useState(space.responseCount);
-  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://shareal.ink"}/${space.token}`;
   const theme = defaultTheme;
+  const domain = getDomain(space.originalUrl);
+  const timestamp = formatRelativeTime(new Date(space.createdAt));
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16, scale: 0.98 }}
@@ -39,7 +50,7 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
         </motion.div>
       )}
 
-      <div className="space-y-5 p-6 pt-3">
+      <div className="space-y-4 p-6 pt-3">
         {space.intentType === "meet" && (
           <motion.div
             initial={{ opacity: 0, y: 6 }}
@@ -67,36 +78,15 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
           </motion.div>
         )}
 
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.3 }}
-        >
-          <SecondaryActions
-            originalUrl={space.originalUrl}
-            shareUrl={shareUrl}
-            title={space.title}
-          />
-        </motion.div>
-
-        {space.originalUrl && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.3 }}
-            className="break-all text-center text-[11px] tracking-wide text-white/20"
-          >
-            {space.originalUrl}
-          </motion.p>
-        )}
+        <SecondaryActions originalUrl={space.originalUrl} />
 
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.45, duration: 0.3 }}
-          className="text-right text-[11px] text-white/20"
+          transition={{ delay: 0.35, duration: 0.3 }}
+          className="text-center text-[11px] tracking-wide text-white/20"
         >
-          {formatRelativeTime(new Date(space.createdAt))}
+          {domain ? `${domain} \u00b7 ${timestamp}` : timestamp}
         </motion.p>
       </div>
     </motion.div>
