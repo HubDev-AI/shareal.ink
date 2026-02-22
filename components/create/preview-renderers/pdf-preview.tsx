@@ -1,13 +1,11 @@
 "use client";
 
 import { FileText } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { TypeBadge } from "@/components/ui/type-badge";
+import { PreviewContent } from "./preview-content";
 import type { PreviewRendererProps } from "./preview-renderer-props";
 
 export function PdfPreview({ linkType, metadata, loading, title }: PreviewRendererProps) {
   const displayTitle = metadata?.title ?? title;
-  const displayDescription = metadata?.description;
 
   return (
     <>
@@ -16,29 +14,7 @@ export function PdfPreview({ linkType, metadata, loading, title }: PreviewRender
         <span className="text-sm font-medium text-foreground/50">PDF Document</span>
       </div>
 
-      <div className="p-4">
-        <div className="mb-2 flex items-center gap-2">
-          <TypeBadge linkType={linkType} />
-        </div>
-
-        {loading && !displayTitle ? (
-          <>
-            <Skeleton className="mb-2 h-5 w-3/4" />
-            <Skeleton className="h-4 w-full" />
-          </>
-        ) : (
-          <>
-            {displayTitle && (
-              <h3 className="mb-1 text-base font-semibold leading-tight tracking-tight text-foreground line-clamp-2">
-                {displayTitle}
-              </h3>
-            )}
-            {displayDescription && (
-              <p className="text-[13px] leading-relaxed text-muted line-clamp-2">{displayDescription}</p>
-            )}
-          </>
-        )}
-      </div>
+      <PreviewContent linkType={linkType} loading={loading} title={displayTitle} description={metadata?.description ?? null} />
     </>
   );
 }
