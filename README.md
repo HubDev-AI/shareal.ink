@@ -104,6 +104,20 @@ Copy `.env.example` to `.env`. Local defaults work out of the box.
 | `UPSTASH_REDIS_REST_TOKEN` | Production rate limiting | No |
 | `RATE_LIMIT_MAX` | Requests per window | No |
 | `RATE_LIMIT_WINDOW_MS` | Rate limit window (ms) | No |
+| `SENTRY_DSN` | Error tracking (Sentry) | No |
+| `NEXT_PUBLIC_SENTRY_DSN` | Client-side error tracking | No |
+
+## CI/CD
+
+PRs to `dev` and `main` run automated checks via GitHub Actions:
+
+- **lint-and-typecheck** — `bun run build` (TypeScript via Turbopack)
+- **unit-tests** — `bun run test` (100 Vitest tests)
+- **e2e-tests** — Playwright against Postgres + Redis service containers
+
+Merges to `main` trigger [release-please](https://github.com/googleapis/release-please) which auto-creates Release PRs with CHANGELOG and semver bumps.
+
+[Dependabot](.github/dependabot.yml) opens weekly PRs for dependency updates.
 
 ## Deployment
 

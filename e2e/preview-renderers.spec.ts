@@ -4,7 +4,10 @@ import { test, expect } from "@playwright/test";
  * E2E tests for preview renderers on the homepage create form.
  * Verifies that each link type shows the correct TypeBadge and
  * renderer-specific visual elements in the preview card.
+ *
+ * Runs serially to avoid hitting the rate limiter (20 req/min per IP).
  */
+test.describe.configure({ mode: "serial" });
 
 const PREVIEW_CASES = [
   { name: "YouTube", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ", badge: "Video" },
@@ -27,9 +30,9 @@ for (const { name, url, badge } of PREVIEW_CASES) {
     await input.fill(url);
     await page.locator("button", { hasText: "Preview" }).click();
 
-    // TypeBadge should appear immediately (based on URL detection, not OG fetch)
+    // TypeBadge should appear after the API returns linkType
     const badgeEl = page.locator("span", { hasText: badge }).first();
-    await expect(badgeEl).toBeVisible({ timeout: 10000 });
+    await expect(badgeEl).toBeVisible({ timeout: 15000 });
   });
 }
 
@@ -40,8 +43,9 @@ test("PDF preview shows document icon area", async ({ page }) => {
   await input.fill("https://example.com/report.pdf");
   await page.locator("button", { hasText: "Preview" }).click();
 
-  await expect(page.locator("text=PDF Document")).toBeVisible({ timeout: 10000 });
-  await expect(page.locator("text=PDF")).toBeVisible();
+  // Wait for the badge first (confirms preview loaded)
+  await expect(page.locator("span", { hasText: "PDF" }).first()).toBeVisible({ timeout: 15000 });
+  await expect(page.locator("text=PDF Document")).toBeVisible();
 });
 
 test("Google Doc preview shows sub-type label", async ({ page }) => {
@@ -51,7 +55,7 @@ test("Google Doc preview shows sub-type label", async ({ page }) => {
   await input.fill("https://docs.google.com/document/d/abc123/edit");
   await page.locator("button", { hasText: "Preview" }).click();
 
-  await expect(page.locator("text=Google Doc").first()).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("text=Google Doc").first()).toBeVisible({ timeout: 15000 });
 });
 
 test("Google Sheets preview shows Sheets sub-type", async ({ page }) => {
@@ -61,7 +65,7 @@ test("Google Sheets preview shows Sheets sub-type", async ({ page }) => {
   await input.fill("https://sheets.google.com/spreadsheets/d/abc123");
   await page.locator("button", { hasText: "Preview" }).click();
 
-  await expect(page.locator("text=Google Sheets")).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("text=Google Sheets")).toBeVisible({ timeout: 15000 });
 });
 
 test("Google Slides preview shows Slides sub-type", async ({ page }) => {
@@ -71,7 +75,7 @@ test("Google Slides preview shows Slides sub-type", async ({ page }) => {
   await input.fill("https://slides.google.com/presentation/d/abc123");
   await page.locator("button", { hasText: "Preview" }).click();
 
-  await expect(page.locator("text=Google Slides")).toBeVisible({ timeout: 10000 });
+  await expect(page.locator("text=Google Slides")).toBeVisible({ timeout: 15000 });
 });
 
 test("preview shows Create button after preview loads", async ({ page }) => {

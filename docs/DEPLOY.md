@@ -46,6 +46,8 @@ Three services: **Vercel** (app), **Railway** (PostgreSQL), **Upstash** (Redis).
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash REST token |
 | `NEXT_PUBLIC_APP_URL` | `https://shareal.ink` |
 | `PLAUSIBLE_DOMAIN` | `shareal.ink` (optional — omit to disable analytics) |
+| `SENTRY_DSN` | Sentry DSN (optional — omit to disable error tracking) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Same DSN for client-side (optional) |
 
 5. Deploy
 
@@ -139,6 +141,11 @@ Events from the app are now tracked in your local Plausible dashboard. No cloud 
 | `RATE_LIMIT_WINDOW_MS` | No | Vercel | Window duration in ms (default: 60000) |
 | `PORT` | No | Railway worker | Health check server port (default: 8080) |
 | `LOG_LEVEL` | No | Railway worker | Logging level (default: info) |
+| `SENTRY_DSN` | No | Vercel + Railway worker | Server-side error tracking |
+| `NEXT_PUBLIC_SENTRY_DSN` | No | Vercel | Client-side error tracking |
+| `SENTRY_AUTH_TOKEN` | No | CI only | Source map uploads to Sentry |
+| `SENTRY_ORG` | No | CI only | Sentry organization slug |
+| `SENTRY_PROJECT` | No | CI only | Sentry project slug |
 
 ---
 
