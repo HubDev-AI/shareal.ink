@@ -54,7 +54,19 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
 
   const pollOgJob = useCallback(
     (id: string) => {
+      stopPolling(); // Clear any existing interval first
+      let pollCount = 0;
+      const MAX_POLLS = 20; // ~30 seconds at 1.5s interval
+
       pollRef.current = setInterval(async () => {
+        pollCount++;
+
+        if (pollCount >= MAX_POLLS) {
+          setState("previewing");
+          stopPolling();
+          return;
+        }
+
         try {
           const res = await fetch(`/api/og/${id}`);
           if (!res.ok) return;
@@ -179,7 +191,7 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      if (state === "idle" || state === "fetching") {
+      if (state === "idle") {
         handleSubmitInput();
       } else if (state === "previewing") {
         handleCreate();

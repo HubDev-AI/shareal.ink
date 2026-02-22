@@ -28,7 +28,7 @@ test.describe("Surface creation — generic URL", () => {
 test.describe("404 page", () => {
   test("shows not-found for invalid token", async ({ page }) => {
     await page.goto("/zzzzzzznotreal");
-    await expect(page.locator("text=not found").first()).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole("heading", { name: /doesn.t exist/i })).toBeVisible({ timeout: 5000 });
   });
 });
 

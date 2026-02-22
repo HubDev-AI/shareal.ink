@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, createElement } from "react";
 import { motion } from "motion/react";
 import { getRenderer } from "./renderers";
 import { ActionButton } from "./shared/action-button";
@@ -19,8 +19,6 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
   const [count, setCount] = useState(space.responseCount);
   const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? "https://shareal.ink"}/${space.token}`;
   const theme = defaultTheme;
-  const Renderer = getRenderer(space.linkType);
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 16, scale: 0.98 }}
@@ -28,7 +26,7 @@ export function SurfaceCard({ space }: SurfaceCardProps) {
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className={`${theme.card} mx-auto ${theme.cardWidth}`}
     >
-      <Renderer space={space} theme={theme} />
+      {createElement(getRenderer(space.linkType), { space, theme })}
 
       {space.intentText && (
         <motion.p

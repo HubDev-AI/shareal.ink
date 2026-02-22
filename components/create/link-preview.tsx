@@ -1,5 +1,6 @@
 "use client";
 
+import { createElement } from "react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { getPreviewRenderer } from "./preview-renderers";
@@ -15,7 +16,6 @@ interface LinkPreviewProps {
 }
 
 export function LinkPreview({ linkType, metadata, loading, title, originalUrl, className }: LinkPreviewProps) {
-  const Renderer = getPreviewRenderer(linkType);
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -23,7 +23,13 @@ export function LinkPreview({ linkType, metadata, loading, title, originalUrl, c
       transition={{ duration: 0.2, ease: "easeOut" }}
       className={cn("w-full overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface shadow-sm", className)}
     >
-      <Renderer linkType={linkType} metadata={metadata} loading={loading} title={title} originalUrl={originalUrl ?? null} />
+      {createElement(getPreviewRenderer(linkType), {
+        linkType,
+        metadata,
+        loading,
+        title,
+        originalUrl: originalUrl ?? null,
+      })}
     </motion.div>
   );
 }

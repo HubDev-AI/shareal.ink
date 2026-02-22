@@ -3,12 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { queue, linkDetector, rateLimiter, analytics } from "@/lib/container";
 import { parseInput } from "@/lib/validation";
 import { linkTypeConfig } from "@/lib/config/link-types";
-import { getWorker } from "@/lib/worker";
+import { getClientIp } from "@/lib/get-client-ip";
 
 export async function POST(request: NextRequest) {
-  // Ensure worker is running (lazy start on first request)
-  getWorker();
-  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  const ip = getClientIp(request);
   const limit = await rateLimiter.check(`og:${ip}`);
   if (!limit.allowed) {
     return NextResponse.json(
@@ -52,7 +50,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    await queue.enqueue("og-fetch", { ogJobId: ogJob.id, url: parsed.value });
+    try {
+      await queue.enqueue("og-fetch", { ogJobId: ogJob.id, url: parsed.value });
+    } catch (enqueueErr) {
+      console.error("[og-route] Failed to enqueue job (Redis may be down):", enqueueErr);
+    }
     analytics.track({ name: "og_job_created", properties: { linkType: detection.linkType } });
 
     return NextResponse.json({

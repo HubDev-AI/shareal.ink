@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ExternalLink, Share2 } from "lucide-react";
+import { sanitizeHref } from "@/lib/security";
 
 interface SecondaryActionsProps {
   originalUrl: string | null;
@@ -11,6 +12,7 @@ interface SecondaryActionsProps {
 
 export function SecondaryActions({ originalUrl, shareUrl, title }: SecondaryActionsProps) {
   const [copied, setCopied] = useState(false);
+  const safeUrl = sanitizeHref(originalUrl);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -28,9 +30,9 @@ export function SecondaryActions({ originalUrl, shareUrl, title }: SecondaryActi
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row">
-      {originalUrl && (
+      {safeUrl && (
         <a
-          href={originalUrl}
+          href={safeUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-white/8 bg-white/5 px-5 py-3 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
