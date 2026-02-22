@@ -1,9 +1,8 @@
 "use client";
 
-import { motion } from "motion/react";
 import { FileText, ExternalLink } from "lucide-react";
 import type { RendererProps } from "./renderer-props";
-import { TruncatedText } from "../shared/truncated-text";
+import { RendererContent } from "../shared/renderer-content";
 import { sanitizeHref } from "@/lib/security";
 
 export function PdfRenderer({ space }: RendererProps) {
@@ -28,24 +27,7 @@ export function PdfRenderer({ space }: RendererProps) {
         </div>
       </a>
 
-      <div className="px-6 pt-5">
-        {space.title && (
-          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.15, duration: 0.3 }}>
-            <TruncatedText text={space.title} href={safeUrl} />
-          </motion.div>
-        )}
-        {space.description && (
-          <motion.p
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.3 }}
-            className="mt-2 whitespace-pre-line text-[15px] leading-relaxed text-white/45 line-clamp-3"
-          >
-            {space.description}
-          </motion.p>
-        )}
-      </div>
+      <RendererContent title={space.title} description={space.description} href={safeUrl} />
     </>
   );
 }
