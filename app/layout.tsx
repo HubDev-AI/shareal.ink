@@ -9,8 +9,12 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "shareal.ink",
-  description: "Share a link. Make it make sense.",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://shareal.ink"
+  ),
+  title: "shareal.ink — Turn any link into a surface",
+  description:
+    "Links get buried in Slack, lost in WhatsApp, forgotten in Discord. shareal.ink turns any link into a structured, intent-aware surface your group can act on.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -18,6 +22,20 @@ export const metadata: Metadata = {
       { url: "/nyra/nyra-favicon-16.png", sizes: "16x16", type: "image/png" },
     ],
     apple: "/apple-icon.png",
+  },
+  openGraph: {
+    title: "shareal.ink — Turn any link into a surface",
+    description:
+      "Links get buried in Slack, lost in WhatsApp, forgotten in Discord. shareal.ink turns any link into a structured, intent-aware surface your group can act on.",
+    url: "https://shareal.ink",
+    siteName: "shareal.ink",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: "shareal.ink — Turn any link into a surface",
+    description:
+      "Links get buried in Slack, lost in WhatsApp, forgotten in Discord. shareal.ink turns any link into a structured, intent-aware surface your group can act on.",
   },
 };
 
