@@ -18,7 +18,7 @@ const securityHeaders = [
       "img-src 'self' data: https: blob:",
       "font-src 'self' https://fonts.gstatic.com",
       "connect-src 'self' https://plausible.io",
-      "frame-src https://open.spotify.com https://www.youtube.com https://www.instagram.com https://www.tiktok.com https://maps.google.com",
+      "frame-src https://open.spotify.com https://www.youtube.com https://www.instagram.com https://www.tiktok.com https://maps.google.com https://www.google.com",
       "frame-ancestors 'none'",
     ].join("; "),
   },

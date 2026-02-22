@@ -42,7 +42,8 @@ Every external dependency has an interface (`lib/interfaces/`) and adapter (`lib
 - `lib/container.ts` — Central dependency wiring
 - `lib/types.ts` — Shared TypeScript types
 - `lib/prisma.ts` — Lazy PrismaClient singleton (Proxy-based, avoids build-time init)
-- `lib/worker.ts` — BullMQ worker for async OG fetching
+- `lib/worker.ts` — Legacy in-process BullMQ worker (used by Next.js dev)
+- `worker/index.ts` — Standalone BullMQ worker process (Docker/Railway). MUST use `MetascraperOgFetcher` adapter — never inline OG scraping logic.
 - `prisma/schema.prisma` — Data models (Space, Response, OgJob)
 - `prisma.config.ts` — Prisma 7 config (datasource URL)
 
@@ -68,6 +69,12 @@ Each link type has TWO renderers that must stay in sync:
 - **Preview renderers** (`components/create/preview-renderers/`) — lightweight previews on homepage create form
 
 When changing image constraints, text truncation, layout, or adding a new link type, **update both renderer sets**. Preview renderers use static images (no iframes), surface renderers use full interactive embeds.
+
+### CSP (Content-Security-Policy)
+Defined in `next.config.ts`. When adding iframe embeds, add BOTH the direct domain AND any redirect targets to `frame-src`. Example: Google Maps embeds at `maps.google.com` redirect to `www.google.com` — both must be in the CSP.
+
+### Worker (standalone process)
+`worker/index.ts` runs as a separate bun process outside Next.js. It uses `@/` imports (bun resolves tsconfig paths). It MUST use the shared `MetascraperOgFetcher` adapter to get site-specific extractors (coords, videoId, embedUrl, etc.) and write `extras` to both OgJob and Space records.
 
 ## Prisma 7 Gotchas
 - `url` is NOT in `schema.prisma` — it's in `prisma.config.ts`
