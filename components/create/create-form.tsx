@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { LinkPreview } from "./link-preview";
 import { parseInput } from "@/lib/validation";
@@ -191,6 +192,8 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
+      const target = e.target as HTMLElement;
+      if (target.tagName === "TEXTAREA") return;
       if (state === "idle") {
         handleSubmitInput();
       } else if (state === "previewing") {
@@ -272,7 +275,7 @@ export function CreateForm({ onPreviewChange }: CreateFormProps) {
               className="border-white/15 bg-white/8 text-white backdrop-blur-md [&_h3]:text-white [&_p]:text-white/60"
             />
 
-            <Input
+            <Textarea
               value={intentText}
               onChange={(e) => setIntentText(e.target.value)}
               placeholder={linkTypeConfig[linkType].intentPlaceholder}
