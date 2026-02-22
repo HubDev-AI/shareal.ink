@@ -50,7 +50,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    await queue.enqueue("og-fetch", { ogJobId: ogJob.id, url: parsed.value });
+    try {
+      await queue.enqueue("og-fetch", { ogJobId: ogJob.id, url: parsed.value });
+    } catch (enqueueErr) {
+      console.error("[og-route] Failed to enqueue job (Redis may be down):", enqueueErr);
+    }
     analytics.track({ name: "og_job_created", properties: { linkType: detection.linkType } });
 
     return NextResponse.json({

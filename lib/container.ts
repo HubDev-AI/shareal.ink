@@ -14,5 +14,10 @@ export const analytics: IAnalytics = process.env.PLAUSIBLE_DOMAIN
   : new NoopAnalytics();
 export const rateLimiter: IRateLimiter = process.env.UPSTASH_REDIS_REST_URL
   ? new UpstashRateLimiter()
-  : new InMemoryRateLimiter();
+  : (() => {
+      if (process.env.NODE_ENV === "production") {
+        console.warn("[container] UPSTASH_REDIS_REST_URL not set — using in-memory rate limiter (not shared across instances)");
+      }
+      return new InMemoryRateLimiter();
+    })();
 export const linkDetector: ILinkDetector = new RegexLinkDetector();

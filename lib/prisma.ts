@@ -10,7 +10,12 @@ function createPrismaClient(): PrismaClient {
   if (!globalForPrisma.prisma) {
     const url = process.env.DATABASE_URL;
     if (!url) throw new Error("DATABASE_URL environment variable is required");
-    const pool = new pg.Pool({ connectionString: url });
+    const pool = new pg.Pool({
+      connectionString: url,
+      max: 3,
+      idleTimeoutMillis: 10000,
+      connectionTimeoutMillis: 5000,
+    });
     const adapter = new PrismaPg(pool);
     globalForPrisma.prisma = new PrismaClient({ adapter });
   }

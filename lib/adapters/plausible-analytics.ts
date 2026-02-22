@@ -19,6 +19,10 @@ export class PlausibleAnalytics implements IAnalytics {
         domain: this.domain,
         props: event.properties ?? {},
       }),
-    }).catch(() => {});
+    }).catch((err) => {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("[plausible]", err instanceof Error ? err.message : err);
+      }
+    });
   }
 }

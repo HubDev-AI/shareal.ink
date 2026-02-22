@@ -1,3 +1,4 @@
+import { cache } from "react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
@@ -11,13 +12,20 @@ import { ComingSoonBadge } from "@/components/ui/coming-soon-badge";
 import type { Metadata } from "next";
 import type { SpaceData, LinkType, IntentType } from "@/lib/types";
 
+const getSpace = cache(async (token: string) => {
+  return prisma.space.findUnique({
+    where: { token },
+    include: { _count: { select: { responses: { where: { responseType: "yes" } } } } },
+  });
+});
+
 interface PageProps {
   params: Promise<{ token: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { token } = await params;
-  const space = await prisma.space.findUnique({ where: { token } });
+  const space = await getSpace(token);
 
   if (!space) return { title: "Not found — shareal.ink", robots: "noindex, nofollow" };
 
@@ -45,10 +53,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function SurfacePage({ params }: PageProps) {
   const { token } = await params;
 
-  const space = await prisma.space.findUnique({
-    where: { token },
-    include: { _count: { select: { responses: { where: { responseType: "yes" } } } } },
-  });
+  const space = await getSpace(token);
 
   if (!space) notFound();
 
