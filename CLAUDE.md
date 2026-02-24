@@ -34,7 +34,7 @@ Every external dependency has an interface (`lib/interfaces/`) and adapter (`lib
 | IQueue | BullMQAdapter | Async job queue |
 | IAuthProvider | NoopAuthProvider | Auth (noop for MVP) |
 | IAnalytics | NoopAnalytics / PlausibleAnalytics | Analytics (auto: PLAUSIBLE_DOMAIN) |
-| IRateLimiter | InMemoryRateLimiter / UpstashRateLimiter | Rate limiting (auto: UPSTASH_REDIS_REST_URL) |
+| IRateLimiter | RedisRateLimiter / InMemoryRateLimiter | Rate limiting (auto: REDIS_URL) |
 | ILinkDetector | RegexLinkDetector | Link type detection |
 | IImageStore | PassthroughImageStore | Image storage (noop for MVP) |
 
@@ -90,8 +90,6 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
 # Optional (production)
 PLAUSIBLE_DOMAIN=shareal.ink          # Activates PlausibleAnalytics adapter
-UPSTASH_REDIS_REST_URL=               # Activates UpstashRateLimiter adapter
-UPSTASH_REDIS_REST_TOKEN=             # Required with UPSTASH_REDIS_REST_URL
 RATE_LIMIT_MAX=20
 RATE_LIMIT_WINDOW_MS=60000
 ```
