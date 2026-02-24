@@ -100,8 +100,6 @@ Copy `.env.example` to `.env`. Local defaults work out of the box.
 | `NEXT_PUBLIC_APP_URL` | App base URL | Yes |
 | `PLAUSIBLE_DOMAIN` | Analytics (Plausible) | No |
 | `PLAUSIBLE_API_URL` | Self-hosted Plausible API URL | No |
-| `UPSTASH_REDIS_REST_URL` | Production rate limiting | No |
-| `UPSTASH_REDIS_REST_TOKEN` | Production rate limiting | No |
 | `RATE_LIMIT_MAX` | Requests per window | No |
 | `RATE_LIMIT_WINDOW_MS` | Rate limit window (ms) | No |
 | `SENTRY_DSN` | Error tracking (Sentry) | No |
