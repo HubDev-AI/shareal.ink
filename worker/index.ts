@@ -101,8 +101,6 @@ const worker = new Worker(
   {
     connection: { url: redisUrl },
     concurrency: 5,
-    drainDelay: 60,
-    stalledInterval: 120_000,
   },
 );
 
