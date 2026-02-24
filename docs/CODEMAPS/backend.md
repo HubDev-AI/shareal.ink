@@ -33,7 +33,7 @@ Uses MetascraperOgFetcher + site-extractors for per-domain metadata enhancement.
 ## Rate Limiting
 - Default: 10 req/min (configurable via RATE_LIMIT_MAX)
 - Respond endpoint: 30 req/min (per IP+token)
-- Auto-selects Upstash (prod) or InMemory (dev)
+- Auto-selects Redis (prod, via REDIS_URL) or InMemory (dev)
 
 ## Security
 - SSRF protection: `isUrlSafe()` blocks private IPs, localhost, non-http

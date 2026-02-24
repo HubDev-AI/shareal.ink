@@ -6,7 +6,7 @@
 - **Framework**: Next.js 16.1.6 (App Router, Turbopack)
 - **Language**: TypeScript 5.9
 - **Database**: PostgreSQL via Prisma 7.4.1
-- **Queue**: BullMQ 5.70.0 + Redis (Upstash in prod)
+- **Queue**: BullMQ 5.70.0 + Redis (Railway in prod)
 - **OG Scraping**: metascraper 5.49.24
 - **Styling**: Tailwind CSS 4, custom design tokens in globals.css
 - **Animations**: Motion 12.34.3 (import from `motion/react`)

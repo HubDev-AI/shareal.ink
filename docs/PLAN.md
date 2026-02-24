@@ -216,7 +216,7 @@ shareal-ink/
 | Token | nanoid base62, 22 chars (>128 bits) | Crypto-random, URL-safe, not guessable |
 | OG fetching | Custom regex extractor (zero extra deps) | Lightweight. Upgrade to `open-graph-scraper` if edge cases arise. |
 | Motion library | `motion` (import from `motion/react`) | Latest version of Framer Motion, rebranded. |
-| Rate limiting | In-memory Map | Single-instance MVP. Replace with Upstash Redis for production. |
+| Rate limiting | Redis sliding window (ioredis + Lua) | Shared across instances via REDIS_URL. Falls back to in-memory for local dev. |
 | Auth | None (MVP) | Surfaces created/responded anonymously. Auth added later for edit/manage. |
 | UI components | Hand-built (~5 components) | No shadcn init overhead. Can add later. |
 | Hosting | Vercel (app) + Railway (PostgreSQL) | Best of both. Vercel native Next.js + Railway managed DB. |

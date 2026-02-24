@@ -6,7 +6,7 @@
 |---------|---------|---------|--------|
 | PostgreSQL | Prisma 7.4.1 + pg Pool | Primary data store | DATABASE_URL |
 | Redis | BullMQ 5.70.0 | Job queue | REDIS_URL |
-| Upstash Redis | @upstash/ratelimit | Rate limiting (prod) | UPSTASH_REDIS_REST_URL + TOKEN |
+| Redis | ioredis (Lua sliding window) | Rate limiting (prod) | REDIS_URL |
 | Plausible | PlausibleAnalytics adapter | Privacy-first analytics (prod) | PLAUSIBLE_DOMAIN |
 | Sentry | @sentry/nextjs | Error tracking | SENTRY_DSN |
 
@@ -38,10 +38,10 @@ lib/adapters/site-extractors/
 ## Infrastructure
 | Target | Platform | Notes |
 |--------|----------|-------|
-| Next.js app | Vercel | SSR + API routes |
+| Next.js app | Railway (Docker) | SSR + API routes |
 | BullMQ worker | Railway (Docker) | Standalone bun process |
-| PostgreSQL | Railway | Shared instance possible |
-| Redis | Upstash | Serverless Redis |
+| PostgreSQL | Railway | Shared instance (shared-infra project) |
+| Redis | Railway | Shared instance (shared-infra project) |
 
 ## Docker
 - `Dockerfile`: Multi-stage (base → app target on :3000, worker target on :8080)
