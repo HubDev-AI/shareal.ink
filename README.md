@@ -126,7 +126,7 @@ See [docs/DEPLOY.md](docs/DEPLOY.md) for the full deployment guide.
 | App | Next.js (serverless) | Vercel |
 | Worker | BullMQ worker (`worker/index.ts`) | Railway |
 | Database | PostgreSQL | Railway |
-| Queue + Rate Limiting | Redis | Upstash |
+| Queue + Rate Limiting | Redis | Railway |
 
 The app and worker are separate processes. The app enqueues OG fetch jobs to Redis; the worker processes them. On Vercel the app runs as serverless functions — the worker **must** run as a persistent process on Railway.
 

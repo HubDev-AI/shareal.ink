@@ -1,6 +1,6 @@
 # Deployment Guide
 
-Four services: **Railway** (app + worker), **Railway** (PostgreSQL), **Upstash** (Redis), **Cloudflare** (DNS).
+Four services: **Railway** (app + worker), **Railway** (PostgreSQL + Redis), **Cloudflare** (DNS).
 
 ---
 
@@ -25,18 +25,14 @@ Four services: **Railway** (app + worker), **Railway** (PostgreSQL), **Upstash**
 
 ---
 
-## 2. Redis — Upstash
+## 2. Redis — Railway
 
-1. Create a database at [console.upstash.com](https://console.upstash.com)
-2. Copy these values from the database details page:
+1. In the `shared-infra` project, add a **Redis** service (+ Create → Database → Redis)
+2. Go to Redis service → Settings → Networking → enable **TCP Proxy** (public networking)
+3. Copy the public proxy URL (e.g., `redis://default:PASSWORD@HOST.proxy.rlwy.net:PORT`)
+4. This single `REDIS_URL` is used for both BullMQ queue and rate limiting
 
-| Value | Used by |
-|-------|---------|
-| `UPSTASH_REDIS_REST_URL` | Rate limiting (REST protocol) |
-| `UPSTASH_REDIS_REST_TOKEN` | Rate limiting (REST protocol) |
-| Redis URL (`rediss://...`) | BullMQ queue (`REDIS_URL`) |
-
-> Upstash provides both REST and standard Redis protocols on the same database. BullMQ needs the standard `rediss://` URL. Rate limiting uses the REST API.
+> **Note:** Redis is in the `shared-infra` project (same as PostgreSQL). Since app + worker are in a different project (`shareal-ink`), you must use the public proxy URL, not the internal `redis.railway.internal` hostname.
 
 ---
 
@@ -57,9 +53,7 @@ The Next.js app runs as a Railway service using `Dockerfile.app`.
 | Variable | Value |
 |----------|-------|
 | `DATABASE_URL` | Railway PostgreSQL connection string (shared-infra, `shareal_ink` database) |
-| `REDIS_URL` | Upstash Redis URL (`rediss://default:...@...upstash.io:6379`) |
-| `UPSTASH_REDIS_REST_URL` | Upstash REST URL |
-| `UPSTASH_REDIS_REST_TOKEN` | Upstash REST token |
+| `REDIS_URL` | Railway Redis public proxy URL (`redis://default:...@...proxy.rlwy.net:PORT`) |
 | `NEXT_PUBLIC_APP_URL` | `https://shareal.ink` |
 | `RATE_LIMIT_MAX` | `20` |
 | `RATE_LIMIT_WINDOW_MS` | `60000` |
@@ -84,21 +78,21 @@ The BullMQ worker (`worker/index.ts`) needs a persistent process. It runs as a s
 | Variable | Value |
 |----------|-------|
 | `DATABASE_URL` | Railway PostgreSQL connection string (same as app) |
-| `REDIS_URL` | Upstash Redis URL (`rediss://default:...@...upstash.io:6379`) |
+| `REDIS_URL` | Railway Redis public proxy URL (same as app) |
 | `PORT` | `8080` (health check server port) |
 | `LOG_LEVEL` | `info` (optional — `debug`, `info`, `warn`, `error`) |
 
 5. Deploy — the worker starts consuming jobs from the `og-fetch` queue
 
 **What the worker does:**
-- Consumes OG fetch jobs from BullMQ (Upstash Redis)
+- Consumes OG fetch jobs from BullMQ (Railway Redis)
 - Extracts metadata using `MetascraperOgFetcher` (same adapter as the app, with site-specific extractors for Maps, YouTube, Spotify, etc.)
 - Updates `OgJob` and `Space` records in PostgreSQL
 - Exposes `/health` endpoint with Redis + DB status
 - Logs structured JSON (Railway auto-indexes these)
 - Graceful shutdown: drains in-flight jobs on SIGTERM (30s timeout)
 
-> **Security:** No direct communication between app and worker. They're decoupled via the Upstash Redis queue. Both connect to Redis over TLS (`rediss://`) and PostgreSQL over SSL.
+> **Security:** No direct communication between app and worker. They're decoupled via the Railway Redis queue. Both connect to Redis via Railway's TCP proxy and PostgreSQL over SSL.
 
 ### Per-Service Config Files
 
@@ -172,8 +166,6 @@ Events from the app are now tracked in your local Plausible dashboard. No cloud 
 |----------|----------|-------|---------|
 | `DATABASE_URL` | Yes | Railway app + worker | PostgreSQL connection |
 | `REDIS_URL` | Yes | Railway app + worker | BullMQ queue |
-| `UPSTASH_REDIS_REST_URL` | Yes (prod) | Railway app | Rate limiting |
-| `UPSTASH_REDIS_REST_TOKEN` | Yes (prod) | Railway app | Rate limiting |
 | `NEXT_PUBLIC_APP_URL` | Yes | Railway app | OG meta, share URLs |
 | `PLAUSIBLE_DOMAIN` | No | Railway app | Analytics |
 | `PLAUSIBLE_API_URL` | No | Railway app | Self-hosted Plausible API (default: plausible.io) |
